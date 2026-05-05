@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Révision - Dominion Seaside</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
+<style>
+:root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --ink-soft: #4a4a4a;
+    --ink-muted: #8a8a8a;
+    --hairline: #e8e6e0;
+    --hairline-strong: #d4d2cb;
+    --accent: #8b6f3e;
+    --accent-soft: #a89572;
+    --code-bg: #f6f5f0;
+
+    /* prism light tokens */
+    --tok-comment: #a89572;
+    --tok-keyword: #8b6f3e;
+    --tok-string: #5a7d5a;
+    --tok-number: #8b3e3e;
+    --tok-class: #3e6a8b;
+    --tok-fn: #1a1a1a;
+    --tok-punct: #8a8a8a;
+    --tok-op: #4a4a4a;
+}
+
+html[data-theme="dark"] {
+    --bg: #14120e;
+    --paper: #1a1814;
+    --ink: #ebe6d8;
+    --ink-soft: #b8b1a0;
+    --ink-muted: #7a7468;
+    --hairline: #2a2620;
+    --hairline-strong: #3a352d;
+    --accent: #c8a572;
+    --accent-soft: #9a8868;
+    --code-bg: #1f1c16;
+
+    /* prism dark tokens */
+    --tok-comment: #6e6754;
+    --tok-keyword: #c8a572;
+    --tok-string: #9bb38a;
+    --tok-number: #d49696;
+    --tok-class: #8aaecf;
+    --tok-fn: #ebe6d8;
+    --tok-punct: #7a7468;
+    --tok-op: #b8b1a0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.75;
+    font-size: 15px;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    border-right: 1px solid var(--hairline);
+    padding: 56px 36px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg);
+}
+
+.sidebar h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.1;
+}
+
+.sidebar .subtitle {
+    color: var(--ink-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 48px;
+    font-weight: 400;
+}
+
+.sidebar nav a {
+    display: block;
+    padding: 5px 0;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    transition: color 0.2s;
+    letter-spacing: 0.01em;
+}
+
+.sidebar nav a:hover {
+    color: var(--accent);
+}
+
+.sidebar nav .nav-section {
+    color: var(--ink-muted);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    padding: 24px 0 8px;
+    margin-top: 4px;
+    border-top: 1px solid var(--hairline);
+}
+
+.sidebar nav .nav-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+/* MAIN */
+main {
+    padding: 88px 96px;
+    max-width: 880px;
+}
+
+h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    margin: 96px 0 32px;
+    color: var(--ink);
+    line-height: 1.15;
+}
+
+h2:first-child { margin-top: 0; }
+
+h2 .num {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+}
+
+h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 48px 0 14px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+}
+
+h4 {
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin: 24px 0 10px;
+    color: var(--ink-soft);
+}
+
+p { margin-bottom: 16px; color: var(--ink-soft); }
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-soft);
+    transition: opacity 0.2s;
+}
+a:hover { opacity: 0.65; }
+
+ul, ol { padding-left: 20px; margin-bottom: 18px; }
+li { margin-bottom: 8px; color: var(--ink-soft); }
+li::marker { color: var(--accent-soft); }
+
+strong { color: var(--ink); font-weight: 600; }
+em { font-style: italic; color: var(--ink); }
+
+code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 1px 7px;
+    border-radius: 3px;
+    color: var(--ink);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+}
+
+pre {
+    background: var(--code-bg) !important;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 24px 28px !important;
+    overflow-x: auto;
+    margin: 20px 0 28px;
+    font-size: 12.5px;
+    line-height: 1.7;
+}
+
+pre code {
+    background: transparent !important;
+    padding: 0;
+    border: none;
+    color: var(--ink);
+    font-size: 12.5px;
+    font-weight: 400;
+}
+
+/* CARDS */
+.card {
+    border: 1px solid var(--hairline);
+    padding: 28px 32px;
+    margin: 20px 0;
+    background: var(--paper);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0;
+    margin: 24px 0;
+    border: 1px solid var(--hairline);
+    background: var(--paper);
+}
+
+.mini-card {
+    padding: 24px 28px;
+    border-right: 1px solid var(--hairline);
+}
+.mini-card:last-child { border-right: none; }
+
+@media (max-width: 700px) {
+    .mini-card { border-right: none; border-bottom: 1px solid var(--hairline); }
+    .mini-card:last-child { border-bottom: none; }
+}
+
+.mini-card .label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+}
+
+.mini-card .desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+}
+
+/* BADGES */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-right: 10px;
+    vertical-align: middle;
+    border: 1px solid;
+    border-radius: 2px;
+}
+.badge-easy { color: #5a7d5a; border-color: #c4d4c4; }
+.badge-med { color: #8b6f3e; border-color: #d8c9a8; }
+.badge-hard { color: #8b3e3e; border-color: #d8a8a8; }
+.badge-info { color: #3e6a8b; border-color: #a8c2d8; }
+.badge-key { color: #6e3e8b; border-color: #c4a8d8; }
+
+/* CALLOUTS */
+.callout {
+    border-left: 2px solid var(--accent);
+    padding: 18px 0 18px 28px;
+    margin: 24px 0;
+    background: transparent;
+}
+.callout-warn { border-color: #c8a04a; }
+.callout-info { border-color: #5a8bc4; }
+.callout-tip { border-color: #7a9a6a; }
+.callout-danger { border-color: #b06868; }
+
+.callout-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--ink);
+    font-style: italic;
+}
+
+.callout p:last-child { margin-bottom: 0; }
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    border-top: 1px solid var(--hairline-strong);
+    border-bottom: 1px solid var(--hairline-strong);
+}
+
+th, td {
+    padding: 14px 18px 14px 0;
+    text-align: left;
+    border-bottom: 1px solid var(--hairline);
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    vertical-align: top;
+}
+
+th {
+    color: var(--ink-muted);
+    font-weight: 500;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding-bottom: 12px;
+    padding-top: 12px;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { color: var(--ink); }
+
+td code, th code { font-size: 12px; }
+
+/* HERO */
+.hero {
+    margin-bottom: 80px;
+    padding-bottom: 56px;
+    border-bottom: 1px solid var(--hairline);
+}
+
+.hero .eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: var(--accent);
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+.hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 20px;
+}
+
+.hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 400;
+}
+
+.hero p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 540px;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.toc-quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-top: 40px;
+}
+
+.toc-quick a {
+    color: var(--ink-soft);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    border-bottom: none;
+    padding-bottom: 2px;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s;
+}
+.toc-quick a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    opacity: 1;
+}
+
+/* RULE */
+.rule {
+    border: none;
+    border-top: 1px solid var(--hairline);
+    margin: 64px 0;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--hairline-strong); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+
+@media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; padding: 32px; }
+    main { padding: 48px 32px; }
+    .hero h1 { font-size: 44px; }
+    h2 { font-size: 30px; }
+}
+
+/* PRISM OVERRIDE — refined editorial palette */
+pre[class*="language-"] code .token.comment,
+pre[class*="language-"] code .token.prolog,
+pre[class*="language-"] code .token.doctype,
+pre[class*="language-"] code .token.cdata { color: var(--tok-comment); font-style: italic; }
+pre[class*="language-"] code .token.keyword { color: var(--tok-keyword); font-weight: 500; }
+pre[class*="language-"] code .token.string,
+pre[class*="language-"] code .token.char { color: var(--tok-string); }
+pre[class*="language-"] code .token.number { color: var(--tok-number); }
+pre[class*="language-"] code .token.class-name { color: var(--tok-class); }
+pre[class*="language-"] code .token.function { color: var(--tok-fn); font-weight: 500; }
+pre[class*="language-"] code .token.punctuation { color: var(--tok-punct); }
+pre[class*="language-"] code .token.operator { color: var(--tok-op); }
+
+/* THEME TOGGLE */
+.theme-toggle {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    z-index: 100;
+    background: var(--paper);
+    border: 1px solid var(--hairline-strong);
+    color: var(--ink-soft);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-size: 16px;
+    font-family: inherit;
+}
+.theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+html[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+/* smooth theme transition */
+body, .sidebar, .card, .card-grid, .mini-card, pre, table, .theme-toggle {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+</style>
+</head>
+<body>
+<script>
+    // Apply theme early to avoid flash
+    (function() {
+        const saved = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = saved || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+    })();
+</script>
+<button class="theme-toggle" id="themeToggle" aria-label="Changer de thème">
+    <span class="icon-moon">☾</span>
+    <span class="icon-sun">☀</span>
+</button>
+<div class="layout">
+<aside class="sidebar">
+    <h1>Dominion Seaside</h1>
+    <p class="subtitle">Fiche de révision</p>
+    <nav>
+        <div class="nav-section">Bases</div>
+        <a href="#archi">Architecture</a>
+        <a href="#card">Classe Card</a>
+        <a href="#player">Classe Player</a>
+        <a href="#game">Classe Game</a>
+
+        <div class="nav-section">Patterns clés</div>
+        <a href="#pattern-simple">Cartes simples</a>
+        <a href="#pattern-choose">Faire choisir</a>
+        <a href="#pattern-discard">Défausser N</a>
+        <a href="#pattern-attack">Attaquer tous</a>
+        <a href="#pattern-gain">Gagner une carte</a>
+        <a href="#pattern-iterate">Itérer sur copie</a>
+
+        <div class="nav-section">Cartes types</div>
+        <a href="#ex-bazaar">Bazaar (★)</a>
+        <a href="#ex-warehouse">Warehouse (★)</a>
+        <a href="#ex-cutpurse">Cutpurse (★)</a>
+        <a href="#ex-salvager">Salvager (★)</a>
+        <a href="#ex-island">Island (★)</a>
+        <a href="#ex-embargo">Embargo (★★★)</a>
+        <a href="#ex-lookout">Lookout (★)</a>
+        <a href="#ex-caravan">Caravan (Duration)</a>
+        <a href="#ex-lighthouse">Lighthouse (Reaction)</a>
+
+        <div class="nav-section">Complexité</div>
+        <a href="#duration">Cartes Duration</a>
+        <a href="#attaque-prot">Protection attaque</a>
+        <a href="#hard-cards">Cartes ★★★</a>
+        <a href="#vp">getVictoryPoints</a>
+
+        <div class="nav-section">Pratique</div>
+        <a href="#io">Format I/O</a>
+        <a href="#checklist">Checklist contrôle</a>
+        <a href="#pieges">Pièges fréquents</a>
+    </nav>
+</aside>
+
+<main>
+<div class="hero">
+    <div class="eyebrow">Fiche de révision · Java · BUT Informatique</div>
+    <h1>Dominion <em>Seaside</em></h1>
+    <p>L'essentiel à retenir pour le contrôle — patterns, exemples commentés, pièges à éviter.</p>
+    <div class="toc-quick">
+        <a href="#pattern-simple">Patterns</a>
+        <a href="#ex-bazaar">Exemples</a>
+        <a href="#duration">Duration</a>
+        <a href="#checklist">Checklist</a>
+        <a href="#pieges">Pièges</a>
+    </div>
+</div>
+
+<!-- ===================== ARCHI ===================== -->
+<h2 id="archi">1. Architecture générale</h2>
+
+<p>Trois classes centrales et un pattern de <strong>déplacement de cartes</strong> via <code>moveTo</code>. Tout passe par là.</p>
+
+<div class="card-grid">
+    <div class="mini-card">
+        <div class="label">Game</div>
+        <div class="desc">Gère la partie, les piles de réserve (<code>supplyPiles</code>), le tour courant, le trash. Point d'entrée : <code>run()</code>.</div>
+    </div>
+    <div class="mini-card">
+        <div class="label">Player</div>
+        <div class="desc">Un joueur avec 7 listes de cartes + 3 compteurs (<code>money</code>, <code>numberOfActions</code>, <code>numberOfBuys</code>).</div>
+    </div>
+    <div class="mini-card">
+        <div class="label">Card (abstract)</div>
+        <div class="desc">Chaque carte hérite et redéfinit <code>play(Player p)</code> et/ou <code>getVictoryValue()</code>.</div>
+    </div>
+</div>
+
+<h3>Les 7 emplacements de cartes d'un joueur</h3>
+<table>
+    <tr><th>Liste</th><th>Description</th></tr>
+    <tr><td><code>hand</code></td><td>Main du joueur</td></tr>
+    <tr><td><code>discard</code></td><td>Défausse</td></tr>
+    <tr><td><code>draw</code></td><td>Pioche (sommet = <code>getLast()</code>)</td></tr>
+    <tr><td><code>inPlay</code></td><td>Cartes jouées ce tour</td></tr>
+    <tr><td><code>cardsSetAside</code></td><td>Mises de côté (Haven, Blockade...)</td></tr>
+    <tr><td><code>islandMat</code></td><td>Tapis Island</td></tr>
+    <tr><td><code>nativeVillageMat</code></td><td>Tapis Native Village</td></tr>
+</table>
+
+<!-- ===================== CARD ===================== -->
+<h2 id="card">2. La classe Card</h2>
+
+<p>Une carte connaît son <strong>emplacement actuel</strong> via <code>private List&lt;Card&gt; location</code>. La méthode <code>moveTo</code> retire de l'ancienne liste, ajoute à la nouvelle, et met à jour <code>location</code>.</p>
+
+<pre><code class="language-java">public void moveTo(List&lt;Card&gt; newLocation) {
+    if (location != null) {
+        location.remove(this);
+    }
+    location = newLocation;
+    newLocation.add(this);
+}</code></pre>
+
+<div class="callout callout-warn">
+    <div class="callout-title">⚠️ Règle d'or</div>
+    Toutes les manipulations de cartes passent par <code>moveTo</code>. <strong>Jamais</strong> de <code>list.add(card)</code> ou <code>list.remove(card)</code> direct.
+</div>
+
+<h3>Méthodes essentielles de Card</h3>
+<table>
+    <tr><th>Méthode</th><th>Rôle</th></tr>
+    <tr><td><code>getName()</code></td><td>Nom de la carte</td></tr>
+    <tr><td><code>getCost()</code></td><td>Coût d'achat</td></tr>
+    <tr><td><code>hasType(CardType)</code></td><td>Test du type (ACTION, TREASURE, VICTORY, ATTACK, DURATION, REACTION, CURSE)</td></tr>
+    <tr><td><code>play(Player p)</code></td><td>Effet quand jouée — à redéfinir</td></tr>
+    <tr><td><code>getVictoryValue()</code></td><td>Points de victoire — à redéfinir pour les cartes Victory</td></tr>
+</table>
+
+<!-- ===================== PLAYER ===================== -->
+<h2 id="player">3. La classe Player</h2>
+
+<h3>Méthodes à connaître par cœur</h3>
+<table>
+    <tr><th>Méthode</th><th>Rôle</th></tr>
+    <tr><td><code>drawToHand()</code></td><td>Pioche 1 carte en main (mélange défausse si besoin)</td></tr>
+    <tr><td><code>getCardFromDeck()</code></td><td>Sommet de la pioche <strong>sans la retirer</strong></td></tr>
+    <tr><td><code>getCardFromSupply(name)</code></td><td>Carte du dessus d'une pile de réserve</td></tr>
+    <tr><td><code>incrementMoney(n)</code> / <code>incrementActions(n)</code></td><td>+n pièces / actions</td></tr>
+    <tr><td><code>moveToHand(c)</code> / <code>moveToDiscard(c)</code></td><td>Déplace une carte</td></tr>
+    <tr><td><code>playCard(c)</code></td><td>Met c en <code>inPlay</code> et exécute <code>c.play(this)</code></td></tr>
+    <tr><td><code>gainTo(c, list)</code></td><td>Gagne une carte vers un emplacement</td></tr>
+</table>
+
+<div class="callout callout-info">
+    <div class="callout-title">💡 À ajouter probablement</div>
+    Une méthode <code>incrementBuys(int n)</code> qui n'existe pas encore mais sera utile pour Wharf, Tide Pools, Treasury, etc.
+</div>
+
+<pre><code class="language-java">public void incrementBuys(int n) {
+    numberOfBuys += n;
+}</code></pre>
+
+<!-- ===================== GAME ===================== -->
+<h2 id="game">4. La classe Game</h2>
+
+<h3>Méthodes utiles</h3>
+<ul>
+    <li><code>getAvailableSupplyCards()</code> — toutes les cartes au sommet des piles non-vides</li>
+    <li><code>getCardFromSupply(name)</code> — la carte d'une pile par son nom</li>
+    <li><code>moveCardToTrash(c)</code> — écarter (trash) une carte (visibilité <code>package</code>, à exposer si besoin)</li>
+    <li><code>isFinished()</code> — vraie si la pile Province est vide OU si ≥3 piles sont vides</li>
+    <li><code>moveToNextPlayer()</code> — passe au joueur suivant</li>
+</ul>
+
+<h3>À ajouter probablement</h3>
+<pre><code class="language-java">public List&lt;Player&gt; getOtherPlayers(Player p) {
+    List&lt;Player&gt; others = new ArrayList&lt;&gt;();
+    int start = players.indexOf(p);
+    for (int i = 1; i &lt; players.size(); i++) {
+        others.add(players.get((start + i) % players.size()));
+    }
+    return others;
+}</code></pre>
+
+<p>Ordre du tour pour les attaques : on commence par le joueur juste après le joueur courant.</p>
+
+<!-- ===================== PATTERNS ===================== -->
+<h2 id="pattern-simple">5. Pattern : Carte Action simple</h2>
+
+<p>La majorité des cartes ★ tiennent en quelques lignes. Toujours dans <code>play(Player p)</code> :</p>
+
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.drawToHand();           // +X cartes (autant de fois que nécessaire)
+    p.incrementActions(N);    // +N actions
+    p.incrementMoney(N);      // +N pièces
+    p.incrementBuys(N);       // +N achats
+}</code></pre>
+
+<p><strong>Cartes concernées :</strong> Bazaar, Fishing Village, Merchant Ship (avec mémo Duration), Wharf, Caravan, Astrolabe, Sea Chart...</p>
+
+<!-- ===================== PATTERN CHOOSE ===================== -->
+<h2 id="pattern-choose">6. Pattern : faire choisir le joueur</h2>
+
+<p><strong>NE JAMAIS</strong> faire la lecture clavier toi-même. Utilise une des 4 méthodes utilitaires de <code>Player</code> :</p>
+
+<table>
+    <tr><th>Méthode</th><th>Quand l'utiliser</th></tr>
+    <tr><td><code>chooseCardFromHand(instr, predicate, canPass)</code></td><td>Choisir une carte de la main avec filtre</td></tr>
+    <tr><td><code>chooseCardFromSupply(instr, predicate, canPass)</code></td><td>Choisir une carte de la réserve avec filtre</td></tr>
+    <tr><td><code>chooseCardFromButtons(instr, listeCartes, canPass)</code></td><td>Choisir parmi des cartes <strong>hors main/réserve</strong> (ex: cartes révélées)</td></tr>
+    <tr><td><code>chooseStringFromButtons(instr, buttons, canPass)</code></td><td>Choisir une option (y/n, trash/discard...)</td></tr>
+</table>
+
+<h4>Exemple — Choisir une Action en main</h4>
+<pre><code class="language-java">Card c = p.chooseCardFromHand(
+    "Choose an Action card",
+    card -> card.hasType(CardType.ACTION),
+    false  // ne peut pas passer s'il a une Action
+);
+if (c != null) {
+    // jouer la carte choisie
+}</code></pre>
+
+<h4>Exemple — Choix Yes/No</h4>
+<pre><code class="language-java">List&lt;Button&gt; buttons = new ArrayList&lt;&gt;();
+buttons.add(new Button("Yes", "y"));
+buttons.add(new Button("No", "n"));
+String choice = p.chooseStringFromButtons("Play this card?", buttons, false);
+if ("y".equals(choice)) { /* ... */ }</code></pre>
+
+<!-- ===================== PATTERN DISCARD ===================== -->
+<h2 id="pattern-discard">7. Pattern : défausser N cartes</h2>
+
+<pre><code class="language-java">int n = 3;
+while (!p.getCardsInHand().isEmpty() &amp;&amp; n &gt; 0) {
+    Card c = p.chooseCardFromHand(
+        "Discard %d card(s)".formatted(n),
+        false);
+    p.moveToDiscard(c);
+    n--;
+}</code></pre>
+
+<p><strong>Réutilisé pour :</strong> Warehouse (3), Sea Witch (2), Tide Pools (2), Cellar...</p>
+
+<!-- ===================== PATTERN ATTACK ===================== -->
+<h2 id="pattern-attack">8. Pattern : attaquer tous les adversaires</h2>
+
+<pre><code class="language-java">for (Player adv : p.getGame().getOtherPlayers(p)) {
+    if (isProtected(adv)) continue;   // Lighthouse, Moat...
+    // effet d'attaque sur adv
+}</code></pre>
+
+<p><strong>Cartes concernées :</strong> Cutpurse, Ghost Ship, Sea Hag, Sea Witch, Pirate Ship, Corsair.</p>
+
+<!-- ===================== PATTERN GAIN ===================== -->
+<h2 id="pattern-gain">9. Pattern : gagner une carte</h2>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🚨 Critique</div>
+    <strong>Toujours</strong> utiliser <code>p.gainTo(card, location)</code>, <strong>jamais</strong> <code>card.moveTo(list)</code> directement quand on <em>gagne</em> une carte. Pourquoi ? Plein de cartes ont des effets déclenchés par le gain : <em>Sailor</em>, <em>Pirate</em>, <em>Embargo</em> (ajoute des Curse), etc.
+</div>
+
+<pre><code class="language-java">// Achat / gain depuis la réserve
+Card silver = p.getCardFromSupply("Silver");
+p.gainTo(silver, p.getCardsInDiscard()); // ou autre destination</code></pre>
+
+<!-- ===================== PATTERN ITERATE ===================== -->
+<h2 id="pattern-iterate">10. Pattern : itérer sur une copie</h2>
+
+<div class="callout callout-warn">
+    <div class="callout-title">⚠️ Bug très fréquent</div>
+    Si tu déplaces des cartes pendant la boucle, <strong>itère sur une copie</strong>. Sinon : <code>ConcurrentModificationException</code> ou cartes oubliées.
+</div>
+
+<pre><code class="language-java">// ✅ OK — getCardsInHand() renvoie une copie
+for (Card c : p.getCardsInHand()) {
+    c.moveTo(discard);
+}
+
+// ❌ BUG — la liste est modifiée pendant l'itération
+for (Card c : hand) {
+    c.moveTo(discard);
+}
+
+// ✅ Alternative manuelle
+for (Card c : new ArrayList&lt;&gt;(hand)) {
+    c.moveTo(discard);
+}</code></pre>
+
+<!-- ===================== EXEMPLES ===================== -->
+<h2 id="ex-bazaar">11. Exemples de cartes</h2>
+
+<h3 id="ex-bazaar"><span class="badge badge-easy">★ Facile</span> Bazaar</h3>
+<p>+1 Carte, +2 Actions, +1 Pièce. Aucune interaction.</p>
+<pre><code class="language-java">public class Bazaar extends Card {
+    public Bazaar() {
+        super("Bazaar", 5, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementActions(2);
+        p.incrementMoney(1);
+    }
+}</code></pre>
+
+<h3 id="ex-warehouse"><span class="badge badge-easy">★ Facile</span> Warehouse</h3>
+<p>+3 Cartes, +1 Action, défausser 3 cartes.</p>
+<pre><code class="language-java">public class Warehouse extends Card {
+    public Warehouse() { super("Warehouse", 3, CardType.ACTION); }
+
+    @Override
+    public void play(Player p) {
+        for (int i = 0; i &lt; 3; i++) p.drawToHand();
+        p.incrementActions(1);
+
+        int n = 3;
+        while (!p.getCardsInHand().isEmpty() &amp;&amp; n &gt; 0) {
+            Card c = p.chooseCardFromHand(
+                "Discard %d card(s)".formatted(n), false);
+            p.moveToDiscard(c);
+            n--;
+        }
+    }
+}</code></pre>
+
+<h3 id="ex-cutpurse"><span class="badge badge-easy">★ Facile</span> Cutpurse — attaque automatique</h3>
+<p>+2 Pièces. Chaque adversaire défausse un Copper de sa main (s'il en a).</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.incrementMoney(2);
+
+    for (Player adv : p.getGame().getOtherPlayers(p)) {
+        if (isProtected(adv)) continue; // Lighthouse
+
+        Card copper = null;
+        for (Card c : adv.getCardsInHand()) {
+            if (c.hasName("Copper")) { copper = c; break; }
+        }
+        if (copper != null) {
+            adv.moveToDiscard(copper);
+        }
+        // sinon : (optionnel) on log la main de l'adversaire
+    }
+}</code></pre>
+
+<h3 id="ex-salvager"><span class="badge badge-easy">★ Facile</span> Salvager — trash for benefit</h3>
+<p>+1 Achat. Écarter une carte de la main, +autant de pièces que son coût.</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.incrementBuys(1);
+
+    Card c = p.chooseCardFromHand("Trash a card", false);
+    if (c != null) {
+        p.incrementMoney(c.getCost());
+        p.getGame().moveCardToTrash(c); // exposer en public si besoin
+    }
+}</code></pre>
+
+<h3 id="ex-island"><span class="badge badge-easy">★ Facile</span> Island — utilise islandMat</h3>
+<p>Place cette carte + une carte de la main sur le tapis Island (qui compte comme cartes possédées).</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    // déplacer Island elle-même sur le tapis
+    p.moveToIslandMat(this);
+
+    Card c = p.chooseCardFromHand("Set aside a card on the Island mat", true);
+    if (c != null) {
+        p.moveToIslandMat(c);
+    }
+}</code></pre>
+
+<p><em>Tu auras à ajouter <code>moveToIslandMat(Card c)</code> dans Player qui fait <code>c.moveTo(islandMat)</code>.</em></p>
+
+<h3 id="ex-embargo"><span class="badge badge-hard">★★★ Difficile</span> Embargo</h3>
+<p>+2 Pièces, écarter Embargo, choisir une pile de la réserve qui reçoit un jeton. Quand on <strong>achète</strong> dans cette pile : autant de Curse que de jetons.</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.incrementMoney(2);
+    p.getGame().moveCardToTrash(this);
+
+    Card chosen = p.chooseCardFromSupply(
+        "Place an Embargo token on a supply pile",
+        c -> true,
+        false);
+    if (chosen != null) {
+        p.getGame().addEmbargoToken(chosen.getName());
+    }
+}</code></pre>
+
+<p>Dans <code>Game</code>, ajouter <code>Map&lt;String, Integer&gt; embargoTokens</code>. Dans <code>Player.playTurn()</code>, à l'achat : si la pile a des jetons, le joueur gagne autant de Curse.</p>
+
+<h3 id="ex-lookout"><span class="badge badge-easy">★ Lookout</span> — chooseCardFromButtons</h3>
+<p>Révèle 3 cartes du dessus de la pioche : 1 trash, 1 discard, 1 retour sur la pioche.</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.incrementActions(1);
+
+    // Révéler 3 cartes (en gérant les cas où il y en a moins)
+    List&lt;Card&gt; revealed = new ArrayList&lt;&gt;();
+    for (int i = 0; i &lt; 3; i++) {
+        Card c = p.getCardFromDeck();
+        if (c == null) break;
+        c.moveTo(p.getCardsSetAside()); // ou liste temporaire
+        revealed.add(c);
+    }
+
+    // 1. Trash
+    Card toTrash = p.chooseCardFromButtons(
+        "Choose a card to trash", revealed, false);
+    if (toTrash != null) {
+        revealed.remove(toTrash);
+        p.getGame().moveCardToTrash(toTrash);
+    }
+
+    // 2. Discard
+    Card toDiscard = p.chooseCardFromButtons(
+        "Choose a card to discard", revealed, false);
+    if (toDiscard != null) {
+        revealed.remove(toDiscard);
+        p.moveToDiscard(toDiscard);
+    }
+
+    // 3. La dernière retourne sur la pioche
+    for (Card c : revealed) {
+        p.putOnDeck(c); // helper à créer : c.moveTo(draw)
+    }
+}</code></pre>
+
+<h3 id="ex-caravan"><span class="badge badge-med">Duration</span> Caravan</h3>
+<p>+1 Carte, +1 Action. <strong>Au début de votre prochain tour, +1 Carte.</strong></p>
+<pre><code class="language-java">public class Caravan extends Card {
+    public Caravan() {
+        super("Caravan", 4, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementActions(1);
+
+        // Effet retardé : enregistrer un effet à exécuter au prochain tour
+        p.addNextTurnEffect(() -&gt; p.drawToHand());
+        // (la carte reste en inPlay, ne sera PAS défaussée au cleanup
+        //  tant qu'elle a un effet en attente)
+    }
+}</code></pre>
+
+<p>Tu auras besoin d'un mécanisme central. Voir <a href="#duration">section Duration</a> ci-dessous.</p>
+
+<h3 id="ex-lighthouse"><span class="badge badge-med">Reaction</span> Lighthouse</h3>
+<p>+1 Action, +1 Pièce maintenant. Au prochain tour : +1 Pièce. Tant qu'il est en jeu, le joueur est immunisé contre les attaques.</p>
+<pre><code class="language-java">@Override
+public void play(Player p) {
+    p.incrementActions(1);
+    p.incrementMoney(1);
+    p.addNextTurnEffect(() -&gt; p.incrementMoney(1));
+}</code></pre>
+
+<p>Pour la protection, dans <strong>chaque carte ATTACK</strong> avant d'attaquer :</p>
+<pre><code class="language-java">private boolean isProtected(Player adv) {
+    for (Card c : adv.getCardsInPlay()) {
+        if (c.hasName("Lighthouse")) return true;
+    }
+    return false;
+}</code></pre>
+
+<!-- ===================== DURATION ===================== -->
+<h2 id="duration">12. Cartes Duration (le sujet le plus complexe)</h2>
+
+<p>Les cartes Duration ont un effet qui s'étale sur 2 tours :</p>
+<ol>
+    <li><strong>Tour T</strong> : effet immédiat + carte reste en <code>inPlay</code> (NON défaussée).</li>
+    <li><strong>Tour T+1</strong> : effet "au début du prochain tour" + défausse à la fin du tour T+1.</li>
+</ol>
+
+<h3>Approche recommandée — file d'effets différés</h3>
+
+<p>Dans <code>Player</code>, ajouter une liste <code>List&lt;Runnable&gt; nextTurnEffects</code> :</p>
+<pre><code class="language-java">private final List&lt;Runnable&gt; nextTurnEffects = new ArrayList&lt;&gt;();
+
+public void addNextTurnEffect(Runnable effect) {
+    nextTurnEffects.add(effect);
+}
+
+// au début de playTurn(), AVANT d'initialiser les compteurs :
+public void playTurn() {
+    List&lt;Runnable&gt; toRun = new ArrayList&lt;&gt;(nextTurnEffects);
+    nextTurnEffects.clear();
+    for (Runnable r : toRun) r.run();
+
+    numberOfActions = 1;
+    money = 0;
+    numberOfBuys = 1;
+    // ... reste du code
+}</code></pre>
+
+<h3>Modifier cleanup() pour ne PAS défausser les Duration actives</h3>
+<pre><code class="language-java">public void cleanup() {
+    numberOfActions = 0;
+    money = 0;
+    numberOfBuys = 0;
+
+    for (Card c : getCardsInHand()) c.moveTo(discard);
+
+    for (Card c : getCardsInPlay()) {
+        // Une carte Duration reste en jeu si elle a encore un effet
+        if (c.hasType(CardType.DURATION) &amp;&amp; c.hasPendingEffect()) {
+            // on la laisse en inPlay
+        } else {
+            c.moveTo(discard);
+        }
+    }
+
+    for (int i = 0; i &lt; 5; i++) drawToHand();
+}</code></pre>
+
+<p>Tu peux aussi gérer ça avec un attribut booléen <code>pendingEffect</code> sur Card, mis à <code>true</code> quand on enregistre un effet retardé, <code>false</code> après exécution.</p>
+
+<div class="callout callout-info">
+    <div class="callout-title">📋 Cartes Duration à implémenter</div>
+    Caravan, Wharf, Merchant Ship, Fishing Village, Tide Pools, Sea Witch, Sailor, Tactician, Astrolabe, Lighthouse, Pirate, Treasury, Outpost, Blockade, Corsair, Monkey.
+</div>
+
+<!-- ===================== HARD CARDS ===================== -->
+<h2 id="hard-cards">13. Cartes ★★★ (les plus dures)</h2>
+
+<table>
+    <tr><th>Carte</th><th>Difficulté principale</th></tr>
+    <tr><td><strong>Embargo</strong></td><td>État externe (jetons par pile) + déclenchement à l'<em>achat</em> uniquement</td></tr>
+    <tr><td><strong>Blockade</strong></td><td>Duration + cartes set aside + Curse si adversaire gagne la même carte</td></tr>
+    <tr><td><strong>Monkey</strong></td><td>Trigger sur "le joueur de gauche gagne une carte" ce tour-là et le suivant</td></tr>
+    <tr><td><strong>Outpost</strong></td><td>Joue 2 tours d'affilée mais avec 3 cartes au 2e</td></tr>
+    <tr><td><strong>Pirate</strong></td><td>Trigger global "un joueur gagne un Trésor" — interroge tous les Pirate en main</td></tr>
+    <tr><td><strong>Sailor</strong></td><td>Trigger sur gain de Duration → choix de jouer immédiatement</td></tr>
+    <tr><td><strong>Treasure Map</strong></td><td>Auto-trash + écarte une 2e Treasure Map en main + 4 Gold sur pioche</td></tr>
+    <tr><td><strong>Treasury</strong></td><td>Pendant cleanup : choix conditionnel de remettre sur pioche</td></tr>
+</table>
+
+<!-- ===================== ATTACK PROTECTION ===================== -->
+<h2 id="attaque-prot">14. Protection contre les attaques</h2>
+
+<p><strong>Lighthouse</strong> : tant qu'il est en jeu, son joueur est immunisé contre les attaques. Avant chaque effet d'attaque sur un adversaire, vérifier :</p>
+
+<pre><code class="language-java">private boolean isProtected(Player adv) {
+    return adv.getCardsInPlay().stream()
+        .anyMatch(c -> c.hasName("Lighthouse"));
+}</code></pre>
+
+<!-- ===================== VICTORY POINTS ===================== -->
+<h2 id="vp">15. getVictoryPoints()</h2>
+
+<pre><code class="language-java">public int getVictoryPoints() {
+    int total = 0;
+    for (Card c : getAllOwnedCards()) {
+        total += c.getVictoryValue();
+    }
+    return total;
+}</code></pre>
+
+<p>Pour les cartes Victory, redéfinir <code>getVictoryValue()</code> :</p>
+<pre><code class="language-java">// Estate
+public int getVictoryValue() { return 1; }
+
+// Duchy
+public int getVictoryValue() { return 3; }
+
+// Province
+public int getVictoryValue() { return 6; }
+
+// Curse
+public int getVictoryValue() { return -1; }
+
+// Island — déjà comptée par getAllOwnedCards via islandMat
+public int getVictoryValue() { return 2; }</code></pre>
+
+<!-- ===================== I/O ===================== -->
+<h2 id="io">16. Format des entrées / sorties</h2>
+
+<table>
+    <tr><th>Entrée</th><th>Signification</th></tr>
+    <tr><td><code>HAND:Caravan</code></td><td>Carte de la main</td></tr>
+    <tr><td><code>SUPPLY:Gold</code></td><td>Pile de réserve</td></tr>
+    <tr><td><code>BUTTON:y</code></td><td>Bouton (option)</td></tr>
+    <tr><td><code>""</code> (vide)</td><td>Passer</td></tr>
+</table>
+
+<div class="callout callout-tip">
+    <div class="callout-title">✅ Astuce</div>
+    Si la liste de choix est <strong>vide</strong>, <code>choose</code> accepte <code>""</code> même si <code>canPass=false</code>.
+</div>
+
+<!-- ===================== CHECKLIST ===================== -->
+<h2 id="checklist">17. Checklist du contrôle</h2>
+
+<div class="card">
+<ul>
+    <li>☐ <strong>Toujours</strong> <code>moveTo</code> pour déplacer / <code>gainTo</code> pour gagner</li>
+    <li>☐ <strong>Itérer sur une copie</strong> (<code>getCardsInHand()</code>) si on déplace pendant l'itération</li>
+    <li>☐ Utiliser <code>chooseCardFromHand/Supply/Buttons</code> au lieu de coder l'I/O</li>
+    <li>☐ Pour les attaques : boucle sur <code>getOtherPlayers</code> + check <code>Lighthouse</code></li>
+    <li>☐ Pour les Duration : enregistrer un effet différé + ne pas défausser au cleanup</li>
+    <li>☐ Pour les Victory : redéfinir <code>getVictoryValue()</code></li>
+    <li>☐ <strong>Ne jamais modifier</strong> les classes <code>*ProfTest</code></li>
+    <li>☐ <strong>Ne jamais modifier</strong> les signatures fournies</li>
+    <li>☐ Le code doit <strong>toujours compiler</strong> avant un commit</li>
+    <li>☐ BabySteps : un test passé avant de passer au suivant</li>
+</ul>
+</div>
+
+<!-- ===================== PIÈGES ===================== -->
+<h2 id="pieges">18. Pièges fréquents</h2>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #1 — moveTo direct au lieu de gainTo</div>
+    Si tu fais <code>card.moveTo(p.discard)</code> au lieu de <code>p.gainTo(card, ...)</code>, les triggers sur gain (Pirate, Sailor, Embargo→Curse) ne se déclencheront pas.
+</div>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #2 — itérer sur la liste originale</div>
+    <code>for (Card c : hand)</code> + <code>c.moveTo(discard)</code> = bug. Toujours <code>getCardsInHand()</code>.
+</div>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #3 — Duration défaussée trop tôt</div>
+    Si tu défausses systématiquement les Duration au cleanup du tour T, leur effet du tour T+1 ne s'exécutera pas.
+</div>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #4 — getCardFromDeck() ne retire pas la carte</div>
+    Cette méthode <strong>renvoie</strong> la carte du sommet sans la retirer. Pour la mettre en main, utilise <code>drawToHand()</code> (qui fait le <code>moveTo(hand)</code>).
+</div>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #5 — Embargo sur achat seulement</div>
+    Le malus Curse de l'Embargo ne se déclenche que sur un <strong>achat</strong> (pendant la boucle d'achat de <code>playTurn</code>), pas sur un gain provoqué par une autre carte.
+</div>
+
+<div class="callout callout-danger">
+    <div class="callout-title">🪤 Piège #6 — Smugglers</div>
+    Mémoriser les cartes gagnées par chaque joueur lors de son <strong>dernier tour</strong> (pas tous les tours). À mettre à jour au début ou à la fin de chaque tour.
+</div>
+
+<div class="callout callout-tip">
+    <div class="callout-title">💡 Conseil final</div>
+    Pour chaque carte, lis <strong>d'abord</strong> sa section dans <a href="IO.md">IO.md</a> — il y a tous les choix attendus, les cas limites et les remarques importantes.
+</div>
+
+<p style="margin-top:60px; color: var(--text-dim); text-align:center; font-size:13px;">
+    Bon courage pour le contrôle 🚀
+</p>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+<script>
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    });
+</script>
+</body>
+</html>

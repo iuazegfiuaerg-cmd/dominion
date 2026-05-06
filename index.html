@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dominion Seaside - Mémo du projet</title>
+<style>
+:root {
+  --bg: #1e1e2e;
+  --panel: #2a2a3e;
+  --panel2: #313145;
+  --accent: #f9c74f;
+  --accent2: #90be6d;
+  --action: #e07a5f;
+  --treasure: #f9c74f;
+  --victory: #90be6d;
+  --duration: #f3722c;
+  --attack: #d62828;
+  --reaction: #4cc9f0;
+  --curse: #9d4edd;
+  --text: #f0f0f0;
+  --muted: #a0a0b0;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+header {
+  background: linear-gradient(135deg, #1a3a5c, #0f4c75);
+  padding: 30px 40px;
+  border-bottom: 3px solid var(--accent);
+}
+header h1 { margin: 0; font-size: 2.2em; color: var(--accent); }
+header p { margin: 5px 0 0; color: var(--muted); }
+nav {
+  background: var(--panel);
+  padding: 0 40px;
+  border-bottom: 1px solid #444;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  flex-wrap: wrap;
+}
+nav a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 14px 20px;
+  display: inline-block;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+nav a:hover { background: var(--panel2); border-bottom-color: var(--accent); }
+main { padding: 30px 40px; max-width: 1400px; margin: 0 auto; }
+section { margin-bottom: 50px; }
+h2 {
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 8px;
+  margin-top: 0;
+}
+h3 { color: var(--accent2); }
+.intro-box {
+  background: var(--panel);
+  border-left: 4px solid var(--accent);
+  padding: 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.architecture {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+.arch-card {
+  background: var(--panel);
+  padding: 16px;
+  border-radius: 8px;
+  border-top: 3px solid var(--accent2);
+}
+.arch-card h4 { margin-top: 0; color: var(--accent); }
+code, pre {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+}
+code.inline {
+  background: #14141d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #f9c74f;
+}
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.card-tile {
+  background: var(--panel);
+  border: 2px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  text-align: center;
+}
+.card-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(249, 199, 79, 0.3);
+  border-color: var(--accent);
+}
+.card-tile .name {
+  font-weight: bold;
+  font-size: 1em;
+  margin-bottom: 6px;
+}
+.card-tile .cost {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: var(--accent);
+  color: #000;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.85em;
+  line-height: 24px;
+  font-weight: bold;
+}
+.card-tile .types {
+  font-size: 0.7em;
+  margin-top: 4px;
+}
+.type-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 1px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  color: #000;
+  font-weight: bold;
+}
+.type-ACTION { background: var(--action); }
+.type-TREASURE { background: var(--treasure); }
+.type-VICTORY { background: var(--victory); }
+.type-DURATION { background: var(--duration); }
+.type-ATTACK { background: var(--attack); color: #fff; }
+.type-REACTION { background: var(--reaction); }
+.type-CURSE { background: var(--curse); color: #fff; }
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 20px;
+}
+.modal.active { display: block; }
+.modal-content {
+  background: var(--panel);
+  margin: 20px auto;
+  max-width: 1100px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--panel2);
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--accent);
+}
+.modal-header h2 { margin: 0; border: none; padding: 0; }
+.close-btn {
+  background: var(--attack);
+  color: white;
+  border: none;
+  font-size: 1.5em;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+}
+.modal-body { padding: 25px 30px; }
+.tab-bar {
+  display: flex;
+  border-bottom: 2px solid #444;
+  margin-bottom: 15px;
+}
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 1em;
+  border-bottom: 3px solid transparent;
+}
+.tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+pre.code {
+  background: #14141d;
+  padding: 18px;
+  border-radius: 6px;
+  overflow-x: auto;
+  border-left: 3px solid var(--accent);
+  font-size: 0.85em;
+  white-space: pre;
+  color: #e0e0e0;
+}
+.kw { color: #c084fc; }
+.str { color: #a3e635; }
+.cmt { color: #71717a; font-style: italic; }
+.num { color: #fbbf24; }
+.description {
+  background: #14141d;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border-left: 3px solid var(--accent2);
+}
+.modifs ul { padding-left: 20px; }
+.modifs li { margin-bottom: 8px; }
+.section-anchor { scroll-margin-top: 70px; }
+.search-box {
+  width: 100%;
+  padding: 12px;
+  background: var(--panel2);
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 1em;
+  margin-bottom: 20px;
+}
+.callout {
+  background: #2a2150;
+  border-left: 4px solid #9d4edd;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+}
+.callout.info { background: #1a3a4a; border-left-color: #4cc9f0; }
+.callout.warn { background: #4a2a1a; border-left-color: var(--duration); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Dominion Seaside - Memo complet du projet</h1>
+  <p>SAE 2.01 - IUT Montpellier-Sete - Phase 1 : Mecanique du jeu en Java</p>
+</header>
+
+<nav>
+  <a href="#presentation">Presentation</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#mecaniques">Mecaniques cles</a>
+  <a href="#cartes-communes">Cartes communes</a>
+  <a href="#cartes-seaside">Cartes Seaside</a>
+  <a href="#fichiers-modifies">Fichiers modifies</a>
+</nav>
+
+<main>
+
+<section id="presentation" class="section-anchor">
+  <h2>Presentation du projet</h2>
+  <div class="intro-box">
+    <p><strong>Dominion Seaside</strong> est un jeu de cartes de type <em>deck-building</em>. A tour de role, les joueurs jouent des cartes pour gagner de l'argent, des actions, et acheter de nouvelles cartes. Le gagnant est celui qui a le plus de Points de Victoire a la fin.</p>
+    <p>L'extension <strong>Seaside</strong> introduit notamment les cartes <code class="inline">Duration</code> dont l'effet persiste sur le tour suivant.</p>
+  </div>
+  <div class="callout info">
+    <strong>Objectif :</strong> implementer en Java les cartes <em>Kingdom</em> de l'extension Seaside (35 cartes) ainsi que les cartes communes (Tresor, Victoire, Malediction). Le code est evalue par des tests unitaires automatises.
+  </div>
+</section>
+
+<section id="architecture" class="section-anchor">
+  <h2>Architecture des classes</h2>
+  <p>3 paquetages : <code class="inline">fr.umontpellier.iut.dominion</code>, <code class="inline">.cards</code>, <code class="inline">.cards.seaside / .common</code>.</p>
+  <div class="architecture">
+    <div class="arch-card">
+      <h4>Card (abstraite)</h4>
+      <p>Classe mere de toutes les cartes. Attributs : <code class="inline">name</code>, <code class="inline">cost</code>, <code class="inline">types</code>, <code class="inline">location</code>.</p>
+      <p>Methodes cles : <code class="inline">play(Player)</code>, <code class="inline">getVictoryValue()</code>, <code class="inline">hasDurationEffect()</code>, <code class="inline">atStartOfTurn(Player)</code>, <code class="inline">moveTo(List)</code>, <code class="inline">hasType(CardType)</code>.</p>
+    </div>
+    <div class="arch-card">
+      <h4>CardType (enum)</h4>
+      <p>7 types : <code class="inline">TREASURE, ACTION, VICTORY, CURSE, REACTION, ATTACK, DURATION</code>. Une carte peut combiner plusieurs types.</p>
+    </div>
+    <div class="arch-card">
+      <h4>Player</h4>
+      <p>7 emplacements : <code class="inline">hand</code>, <code class="inline">discard</code>, <code class="inline">draw</code>, <code class="inline">inPlay</code>, <code class="inline">cardsSetAside</code>, <code class="inline">islandMat</code>, <code class="inline">nativeVillageMat</code>.</p>
+      <p>Compteurs : <code class="inline">money</code>, <code class="inline">numberOfActions</code>, <code class="inline">numberOfBuys</code>.</p>
+    </div>
+    <div class="arch-card">
+      <h4>Game</h4>
+      <p>Gere la liste des joueurs, les piles de reserve (<code class="inline">supplyPiles</code>), les cartes ecartees (<code class="inline">trashedCards</code>) et le deroulement de la partie.</p>
+    </div>
+    <div class="arch-card">
+      <h4>SupplyPile</h4>
+      <p>Pile de reserve pour un type de carte. Etend <code class="inline">ArrayList&lt;Card&gt;</code>. Possede un compteur <code class="inline">nbEmbargoTokens</code>.</p>
+    </div>
+    <div class="arch-card">
+      <h4>FactorySupplyPile</h4>
+      <p>Fabrique qui cree une <code class="inline">SupplyPile</code> a partir du nom d'une carte (Factory Pattern).</p>
+    </div>
+  </div>
+</section>
+
+<section id="mecaniques" class="section-anchor">
+  <h2>Mecaniques cles a retenir</h2>
+  <h3>Tour d'un joueur (<code class="inline">playTurn()</code>)</h3>
+  <ol>
+    <li>Initialise <code class="inline">numberOfActions = 1</code>, <code class="inline">numberOfBuys = 1</code>, <code class="inline">money = 0</code>.</li>
+    <li>Appelle <code class="inline">atStartOfTurn(p)</code> pour chaque carte en jeu (effets Duration).</li>
+    <li>Le joueur peut jouer des Actions, puis des Tresors, puis acheter des cartes.</li>
+    <li>Quand un Tresor est joue, plus aucune Action n'est possible.</li>
+  </ol>
+  <h3>Cleanup (<code class="inline">cleanup()</code>)</h3>
+  <ul>
+    <li>Toutes les cartes en main sont defaussees.</li>
+    <li>Les cartes en jeu sont defaussees <strong>sauf</strong> si <code class="inline">hasDurationEffect()</code> renvoie <code class="inline">true</code>.</li>
+    <li>Treasury : peut etre placee sur la pioche si aucune carte Victoire n'a ete recue.</li>
+    <li>Pioche 5 cartes (3 si <code class="inline">hasOutpostEffect</code>).</li>
+  </ul>
+  <h3>Cartes Duration</h3>
+  <p>Une carte Duration reste en jeu tant que <code class="inline">hasDurationEffect()</code> retourne <code class="inline">true</code>. L'effet est applique via <code class="inline">atStartOfTurn(Player)</code> au debut du tour suivant. Le pattern habituel :</p>
+  <pre class="code"><span class="kw">private boolean</span> durationActive;
+
+<span class="kw">public void</span> play(Player p) {
+    <span class="cmt">// effet immediat</span>
+    durationActive = <span class="kw">true</span>;
+}
+<span class="kw">public void</span> atStartOfTurn(Player p) {
+    <span class="cmt">// effet du prochain tour</span>
+    durationActive = <span class="kw">false</span>;
+}
+<span class="kw">public boolean</span> hasDurationEffect() { <span class="kw">return</span> durationActive; }</pre>
+
+  <h3>Cartes Attack et protection</h3>
+  <p>Une carte <code class="inline">Lighthouse</code> en jeu protege son proprietaire : <code class="inline">isProtectedFromAttacks()</code> renvoie <code class="inline">true</code>. Toutes les cartes Attaque doivent verifier ce flag avant de toucher un adversaire.</p>
+
+  <h3>Hooks dans <code class="inline">Player.gainTo()</code></h3>
+  <p>Quand un joueur gagne une carte, plusieurs reactions sont declenchees :</p>
+  <ul>
+    <li><strong>Embargo</strong> : si la pile a des jetons, le joueur recoit autant de Maledictions.</li>
+    <li><strong>Pirate</strong> : si un Tresor est gagne, chaque joueur peut jouer son Pirate.</li>
+    <li><strong>Blockade</strong> : si la carte gagnee est celle mise de cote, l'adversaire recoit une Malediction.</li>
+    <li><strong>Monkey</strong> : si le voisin de droite gagne une carte, le proprietaire pioche +1.</li>
+    <li><strong>Sailor</strong> : si une carte Duration est gagnee, le joueur peut la jouer (1 fois/tour).</li>
+  </ul>
+</section>
+
+<section id="cartes-communes" class="section-anchor">
+  <h2>Cartes communes (Tresor / Victoire / Malediction)</h2>
+  <p>Cliquez sur une carte pour voir son code.</p>
+  <div class="cards-grid" id="grid-common"></div>
+</section>
+
+<section id="cartes-seaside" class="section-anchor">
+  <h2>Cartes Seaside (Kingdom)</h2>
+  <input type="text" class="search-box" id="searchSeaside" placeholder="Rechercher une carte...">
+  <div class="cards-grid" id="grid-seaside"></div>
+</section>
+
+<section id="fichiers-modifies" class="section-anchor">
+  <h2>Fichiers principaux modifies</h2>
+  <div class="callout warn">
+    Pour faire fonctionner les cartes Seaside, le squelette de <code class="inline">Player.java</code>, <code class="inline">Card.java</code> et <code class="inline">SupplyPile.java</code> a du etre etendu avec de nouvelles methodes et attributs.
+  </div>
+  <h3><code class="inline">Card.java</code></h3>
+  <ul>
+    <li><code class="inline">hasDurationEffect()</code> : retourne <code class="inline">false</code> par defaut, redefinie par chaque carte Duration.</li>
+    <li><code class="inline">atStartOfTurn(Player)</code> : vide par defaut, redefinie pour executer l'effet du prochain tour.</li>
+  </ul>
+  <h3><code class="inline">Player.java</code> - nouveaux attributs</h3>
+  <ul>
+    <li><code class="inline">hasOutpostEffect</code>, <code class="inline">isOutpostTurn</code> (Outpost)</li>
+    <li><code class="inline">cardsGainedThisTurn</code>, <code class="inline">cardsGainedLastTurn</code> (Smugglers)</li>
+    <li><code class="inline">gainedVictoryCardThisTurn</code> (Treasury)</li>
+    <li><code class="inline">cardsSetAside</code>, <code class="inline">islandMat</code>, <code class="inline">nativeVillageMat</code></li>
+  </ul>
+  <h3><code class="inline">Player.java</code> - methodes ajoutees</h3>
+  <ul>
+    <li><code class="inline">isProtectedFromAttacks()</code> : verifie si Lighthouse est en jeu.</li>
+    <li><code class="inline">gainTo(Card, List)</code> : centralise tous les hooks (Embargo, Pirate, Blockade, Monkey, Sailor).</li>
+    <li><code class="inline">moveToHand/Discard/Draw/SetAside/Trash(Card)</code> : deplacements de cartes.</li>
+    <li><code class="inline">moveToNativeVillageMat(Card)</code>, <code class="inline">takeAllFromNativeVillageMat()</code></li>
+    <li><code class="inline">addIslandCard(Card)</code></li>
+    <li><code class="inline">getBottomCardFromDeck()</code>, <code class="inline">moveBottomCardToDeckTop()</code> (Pearl Diver)</li>
+    <li><code class="inline">gainCardToHand(String)</code>, <code class="inline">gainToHand(Card)</code>, <code class="inline">gainToDiscard(Card)</code></li>
+    <li>Modification de <code class="inline">playCard()</code> pour Corsair, et <code class="inline">cleanup()</code> pour Treasury et Duration.</li>
+  </ul>
+  <h3><code class="inline">SupplyPile.java</code></h3>
+  <ul>
+    <li><code class="inline">nbEmbargoTokens</code>, <code class="inline">addEmbargoToken()</code>, <code class="inline">getNbEmbargoTokens()</code>.</li>
+  </ul>
+  <h3><code class="inline">Game.java</code></h3>
+  <ul>
+    <li><code class="inline">getOtherPlayers(Player)</code>, <code class="inline">getSupplyPile(String)</code>, <code class="inline">moveCardToTrash(Card)</code>.</li>
+  </ul>
+</section>
+
+</main>
+
+<div class="modal" id="cardModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">-</h2>
+      <button class="close-btn" onclick="closeModal()">X</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalDescription" class="description"></div>
+      <div id="modalMeta"></div>
+      <div class="tab-bar">
+        <button class="tab active" data-tab="code">Code Java</button>
+        <button class="tab" data-tab="modifs">Impacts sur d'autres fichiers</button>
+        <button class="tab" data-tab="logique">Logique</button>
+      </div>
+      <div id="tab-code" class="tab-content active"><pre class="code" id="modalCode"></pre></div>
+      <div id="tab-modifs" class="tab-content modifs"><div id="modalModifs"></div></div>
+      <div id="tab-logique" class="tab-content"><div id="modalLogique"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CARDS = {
+  Copper: {
+    category: "common", cost: 0, types: ["TREASURE"],
+    description: "Tresor de base. +1 Piece.",
+    logique: "Tres simple : <code>incrementMoney(1)</code>.",
+    modifs: ["Aucune modification d'autres fichiers."],
+    code: `public class Copper extends Card {
+    public Copper() {
+        super("Copper", 0, CardType.TREASURE);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(1);
+    }
+}`
+  },
+  Silver: {
+    category: "common", cost: 3, types: ["TREASURE"],
+    description: "Tresor moyen. +2 Pieces.",
+    logique: "<code>incrementMoney(2)</code>.",
+    modifs: ["Aucune modification."],
+    code: `public class Silver extends Card {
+    public Silver() {
+        super("Silver", 3, CardType.TREASURE);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+    }
+}`
+  },
+  Gold: {
+    category: "common", cost: 6, types: ["TREASURE"],
+    description: "Tresor puissant. +3 Pieces.",
+    logique: "<code>incrementMoney(3)</code>.",
+    modifs: ["Aucune modification."],
+    code: `public class Gold extends Card {
+    public Gold() {
+        super("Gold", 6, CardType.TREASURE);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(3);
+    }
+}`
+  },
+  Estate: {
+    category: "common", cost: 2, types: ["VICTORY"],
+    description: "Carte Victoire valant 1 PV.",
+    logique: "Redefinit <code>getVictoryValue()</code> pour retourner 1.",
+    modifs: ["Aucune."],
+    code: `public class Estate extends Card {
+    public Estate() {
+        super("Estate", 2, CardType.VICTORY);
+    }
+
+    @Override
+    public int getVictoryValue() {
+        return 1;
+    }
+}`
+  },
+  Duchy: {
+    category: "common", cost: 5, types: ["VICTORY"],
+    description: "Carte Victoire valant 3 PV.",
+    logique: "<code>getVictoryValue()</code> retourne 3.",
+    modifs: ["Aucune."],
+    code: `public class Duchy extends Card {
+    public Duchy() {
+        super("Duchy", 5, CardType.VICTORY);
+    }
+
+    @Override
+    public int getVictoryValue() {
+        return 3;
+    }
+}`
+  },
+  Province: {
+    category: "common", cost: 8, types: ["VICTORY"],
+    description: "Carte Victoire valant 6 PV. Sa pile vide declenche la fin de partie.",
+    logique: "<code>getVictoryValue()</code> retourne 6.",
+    modifs: ["Game.isGameOver() verifie si la pile Province est vide."],
+    code: `public class Province extends Card {
+    public Province() {
+        super("Province", 8, CardType.VICTORY);
+    }
+
+    @Override
+    public int getVictoryValue() {
+        return 6;
+    }
+}`
+  },
+  Curse: {
+    category: "common", cost: 0, types: ["CURSE"],
+    description: "Malediction. Vaut -1 PV a la fin de la partie.",
+    logique: "<code>getVictoryValue()</code> retourne -1.",
+    modifs: ["<code>Player.incrementCurse(p)</code> : place une Malediction dans la defausse de p."],
+    code: `public class Curse extends Card {
+    public Curse() {
+        super("Curse", 0, CardType.CURSE);
+    }
+
+    @Override
+    public int getVictoryValue() {
+        return -1;
+    }
+}`
+  },
+  Ambassador: {
+    category: "seaside", cost: 3, types: ["ACTION", "ATTACK"],
+    description: "Devoilez une carte. Replacez jusqu'a 2 exemplaires de cette carte dans la reserve. Tous les adversaires recoivent 1 exemplaire.",
+    logique: "1) Choix d'une carte de la main. 2) Boucle 2 fois pour proposer de la rendre. 3) Pour chaque adversaire, prendre une copie de la pile et la mettre dans sa defausse.",
+    modifs: ["Aucun hook special dans Player. Utilise <code>chooseCardFromHand</code>, <code>moveToDiscard</code> et <code>game.getSupplyPile</code>."],
+    code: `public class Ambassador extends Card {
+    public Ambassador() {
+        super("Ambassador", 3, CardType.ACTION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        Card revealed = p.chooseCardFromHand("Choisissez une carte a devoiler", false);
+        if (revealed != null) {
+            String cardName = revealed.getName();
+            p.log(p.getName() + " devoile " + cardName);
+
+            for (int i = 0; i < 2; i++) {
+                Card toReturn = p.chooseCardFromHand(
+                        "Remettre un exemplaire de " + cardName + " en reserve (max 2)",
+                        c -> c.getName().equals(cardName), true);
+                if (toReturn != null) {
+                    toReturn.moveTo(p.getGame().getSupplyPile(cardName));
+                } else {
+                    break;
+                }
+            }
+
+            for (Player opponent : p.getGame().getPlayers()) {
+                if (opponent != p) {
+                    Card gained = p.getGame().getCardFromSupply(cardName);
+                    if (gained != null) {
+                        opponent.moveToDiscard(gained);
+                    }
+                }
+            }
+        }
+    }
+}`
+  },
+  Astrolabe: {
+    category: "seaside", cost: 3, types: ["TREASURE", "DURATION"],
+    description: "+1 Achat, +1 Piece. Au debut de votre prochain tour : +1 Achat, +1 Piece.",
+    logique: "Carte Tresor ET Duration. Le drapeau <code>durationActive</code> est mis a true au play, false a atStartOfTurn.",
+    modifs: ["Utilise <code>atStartOfTurn</code> et <code>hasDurationEffect</code> de Card."],
+    code: `public class Astrolabe extends Card {
+
+    private boolean durationActive;
+
+    public Astrolabe() {
+        super("Astrolabe", 3, CardType.TREASURE, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementBuy(1);
+        p.incrementMoney(1);
+        durationActive = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.incrementBuy(1);
+        p.incrementMoney(1);
+        durationActive = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+}`
+  },
+  Bazaar: {
+    category: "seaside", cost: 5, types: ["ACTION"],
+    description: "+1 Carte, +2 Actions, +1 Piece.",
+    logique: "Carte simple, pas d'effet conditionnel.",
+    modifs: ["Aucune."],
+    code: `public class Bazaar extends Card {
+    public Bazaar() {
+        super("Bazaar", 5, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p){
+        p.drawToHand();
+        p.incrementAction(2);
+        p.incrementMoney(1);
+    }
+}`
+  },
+  Blockade: {
+    category: "seaside", cost: 4, types: ["ACTION", "DURATION", "ATTACK"],
+    description: "Mettez de cote une carte de cout <= 4. Au prochain tour, prenez-la en main. Si un adversaire en gagne un exemplaire ce tour, il recoit une Malediction.",
+    logique: "Stocke <code>setAsideCard</code>. Recupere via <code>moveToSetAside</code>. Au prochain tour, la carte va en main. Le hook <code>onOtherPlayerGain</code> est appele depuis <code>Player.gainTo</code>.",
+    modifs: [
+      "<code>Player.gainTo()</code> appelle <code>blockade.onOtherPlayerGain()</code> sur tous les Blockade en jeu chez les adversaires.",
+      "<code>Player.moveToSetAside(Card)</code> a ete ajoutee pour permettre l'operation."
+    ],
+    code: `public class Blockade extends Card {
+
+    private Card setAsideCard;
+
+    public Blockade() {
+        super("Blockade", 4, CardType.ACTION, CardType.DURATION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        Card choice = p.chooseCardFromSupply(
+                "Choisissez une carte coutant jusqu'a 4",
+                c -> c.getCost() <= 4, false);
+
+        if (choice != null) {
+            setAsideCard = choice;
+            p.moveToSetAside(setAsideCard);
+        }
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (setAsideCard != null) {
+            p.moveToHand(setAsideCard);
+            setAsideCard = null;
+        }
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return setAsideCard != null;
+    }
+
+    public void onOtherPlayerGain(Player owner, Player gainer, Card gained) {
+        if (setAsideCard != null
+                && gained.hasSameNameAs(setAsideCard)
+                && !gainer.equals(owner)) {
+            gainer.incrementCurse(gainer);
+        }
+    }
+}`
+  },
+  Caravan: {
+    category: "seaside", cost: 4, types: ["ACTION", "DURATION"],
+    description: "+1 Carte, +1 Action. Au debut de votre prochain tour, +1 Carte.",
+    logique: "Pattern Duration classique avec <code>durationActive</code>.",
+    modifs: ["Aucune."],
+    code: `public class Caravan extends Card {
+
+    private boolean durationActive = false;
+
+    public Caravan() {
+        super("Caravan", 4, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementAction(1);
+        this.durationActive = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.drawToHand();
+        this.durationActive = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+}`
+  },
+  Corsair: {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION", "ATTACK"],
+    description: "+2 Pieces. Au debut du prochain tour, +1 Carte. Tant que cette carte est en jeu, le 1er Silver/Gold joue par chaque adversaire est ecarte.",
+    logique: "Stocke <code>alreadyTrashedFor</code> par adversaire. Verifie la protection Lighthouse.",
+    modifs: [
+      "<code>Player.playCard(Card)</code> a ete modifiee : quand un Tresor est joue, on parcourt les Corsair en jeu chez les autres joueurs et on appelle <code>onOtherPlayerPlaysTreasure</code>.",
+      "Import explicite de <code>Corsair</code> dans Player.java."
+    ],
+    code: `public class Corsair extends Card {
+
+    private boolean duration;
+    private Player alreadyTrashedFor;
+
+    public Corsair() {
+        super("Corsair", 5, CardType.ACTION, CardType.DURATION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+        duration = true;
+        alreadyTrashedFor = null;
+    }
+
+    public void onOtherPlayerPlaysTreasure(Player owner, Player player, Card treasure) {
+        if (player.isProtectedFromAttacks()) {
+            return;
+        }
+        if (alreadyTrashedFor != player) {
+            alreadyTrashedFor = null;
+        }
+        if (alreadyTrashedFor != null) {
+            return;
+        }
+        if (treasure.hasName("Silver") || treasure.hasName("Gold")) {
+            alreadyTrashedFor = player;
+            player.moveToTrash(treasure);
+        }
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.drawToHand();
+        duration = false;
+        alreadyTrashedFor = null;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return duration;
+    }
+}`
+  },
+  Cutpurse: {
+    category: "seaside", cost: 4, types: ["ACTION", "ATTACK"],
+    description: "+2 Pieces. Tous les adversaires defaussent un Cuivre (ou revelent une main sans Cuivre).",
+    logique: "Boucle sur les adversaires non proteges. Cherche un Copper en main, le defausse.",
+    modifs: ["Verification de <code>isProtectedFromAttacks()</code> ajoutee a Player."],
+    code: `public class Cutpurse extends Card {
+
+    public Cutpurse() {
+        super("Cutpurse", 4, CardType.ACTION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+
+        for (Player opponent : p.getGame().getPlayers()) {
+            if (opponent != p) {
+                if (opponent.isProtectedFromAttacks()) {
+                    continue;
+                }
+
+                Card copper = null;
+                for (Card c : opponent.getCardsInHand()) {
+                    if (c.getName().equals("Copper")) {
+                        copper = c;
+                        break;
+                    }
+                }
+
+                if (copper != null) {
+                    opponent.moveToDiscard(copper);
+                } else {
+                    opponent.log(opponent.getName() + " devoile une main sans Cuivre.");
+                }
+            }
+        }
+    }
+}`
+  },
+  Embargo: {
+    category: "seaside", cost: 2, types: ["ACTION"],
+    description: "+2 Pieces. Ecartez cette carte. Placez un jeton Embargo sur une pile : quiconque achete/gagne une carte de cette pile recoit une Malediction.",
+    logique: "Auto-ecartement. Choix d'une pile. Ajout d'un jeton.",
+    modifs: [
+      "<code>SupplyPile</code> : ajout de l'attribut <code>nbEmbargoTokens</code> et des methodes <code>addEmbargoToken()</code> et <code>getNbEmbargoTokens()</code>.",
+      "<code>Player.gainTo()</code> : pour chaque jeton sur la pile gagnee, le joueur recoit une Malediction."
+    ],
+    code: `public class Embargo extends Card {
+
+    public Embargo() {
+        super("Embargo", 2, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+        p.moveToTrash(this);
+
+        Card chosen = p.chooseCardFromSupply("Placez un jeton Embargo sur une pile", c -> true, false);
+
+        if (chosen != null) {
+            SupplyPile pile = p.getGame().getSupplyPile(chosen.getName());
+            if (pile != null) {
+                pile.addEmbargoToken();
+            }
+        }
+    }
+}`
+  },
+  Explorer: {
+    category: "seaside", cost: 5, types: ["ACTION"],
+    description: "Vous pouvez reveler une Province. Si oui, gagnez un Or en main, sinon un Argent en main.",
+    logique: "Choix optionnel d'une Province. Ajout d'un Gold ou d'un Silver via <code>gainCardToHand</code>.",
+    modifs: ["Player.gainCardToHand(String) : recupere la carte dans la reserve et l'ajoute a la main."],
+    code: `public class Explorer extends Card {
+
+    public Explorer() {
+        super("Explorer", 5, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        Card province = p.chooseCardFromHand(
+                "Explorer: Reveal a Province from your hand?",
+                c -> c.hasName("Province"), true);
+
+        if (province != null) {
+            p.gainCardToHand("Gold");
+        } else {
+            p.gainCardToHand("Silver");
+        }
+    }
+}`
+  },
+  "Fishing Village": {
+    category: "seaside", cost: 3, types: ["ACTION", "DURATION"],
+    description: "+2 Actions, +1 Piece. Au debut du prochain tour, +1 Action et +1 Piece.",
+    logique: "Duration classique. Donne des actions/pieces immediatement et au tour suivant.",
+    modifs: ["Aucune."],
+    code: `public class FishingVillage extends Card {
+
+    public boolean durationEffect;
+
+    public FishingVillage() {
+        super("Fishing Village", 3, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementAction(2);
+        p.incrementMoney(1);
+        durationEffect = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.incrementAction(1);
+        p.incrementMoney(1);
+        durationEffect = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffect;
+    }
+}`
+  },
+  "Ghost Ship": {
+    category: "seaside", cost: 5, types: ["ACTION", "ATTACK"],
+    description: "+2 Cartes. Tous les adversaires ayant 4+ cartes en main remettent des cartes sur leur pioche jusqu'a n'en avoir que 3.",
+    logique: "Boucle while sur la main des adversaires non proteges.",
+    modifs: ["Aucune (utilise <code>moveToDraw</code> existant)."],
+    code: `public class GhostShip extends Card {
+
+    public GhostShip() {
+        super("Ghost Ship", 5, CardType.ACTION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.drawToHand();
+
+        Game game = p.getGame();
+        int currentPlayerIndex = game.getPlayerIndex(p);
+
+        for (int i = 0; i < game.getNbPlayers(); i++) {
+            if (i != currentPlayerIndex) {
+                Player opponent = game.getPlayer(i);
+                while (opponent.getCardsInHand().size() >= 4) {
+                    Card card = opponent.chooseCardFromHand(
+                        "Choose a card to put on top of your deck", false);
+                    if (card != null) {
+                        opponent.moveToDraw(card);
+                    }
+                }
+            }
+        }
+    }
+}`
+  },
+  Haven: {
+    category: "seaside", cost: 2, types: ["ACTION", "DURATION"],
+    description: "+1 Carte, +1 Action. Mettez une carte de cote. Au prochain tour, prenez-la en main.",
+    logique: "Stocke la <code>setAsideCard</code>, la deplace via <code>moveToSetAside</code>, la rend en main au prochain tour.",
+    modifs: ["<code>Player.moveToSetAside(Card)</code> ajoutee."],
+    code: `public class Haven extends Card {
+
+    private Card setAsideCard;
+
+    public Haven() {
+        super("Haven", 2, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementAction(1);
+
+        Card chosen = p.chooseCardFromHand("Choisissez une carte a mettre de cote", false);
+        if (chosen != null) {
+            setAsideCard = chosen;
+            p.moveToSetAside(chosen);
+        }
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (setAsideCard != null) {
+            p.moveToHand(setAsideCard);
+            setAsideCard = null;
+        }
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return setAsideCard != null;
+    }
+}`
+  },
+  Island: {
+    category: "seaside", cost: 4, types: ["ACTION", "VICTORY"],
+    description: "Vaut 2 PV. Met cette carte et une autre carte de la main sur le plateau Ile.",
+    logique: "Auto-deplacement sur l'islandMat puis choix d'une autre carte.",
+    modifs: [
+      "<code>Player.islandMat</code> : nouvelle liste.",
+      "<code>Player.addIslandCard(Card)</code>, <code>Player.getCardsOnIslandMat()</code>."
+    ],
+    code: `public class Island extends Card {
+
+    public Island() {
+        super("Island", 4, CardType.ACTION, CardType.VICTORY);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.addIslandCard(this);
+
+        Card chosen = p.chooseCardFromHand("Choisissez une carte a mettre sur l'ile", false);
+        if (chosen != null) {
+            p.addIslandCard(chosen);
+        }
+    }
+
+    @Override
+    public int getVictoryValue() {
+        return 2;
+    }
+}`
+  },
+  Lighthouse: {
+    category: "seaside", cost: 2, types: ["ACTION", "DURATION"],
+    description: "+1 Action. Maintenant et au prochain tour : +1 Piece. Vous protege des Attaques tant qu'elle est en jeu.",
+    logique: "Sa simple presence dans <code>inPlay</code> avec le nom 'Lighthouse' suffit a <code>isProtectedFromAttacks()</code>.",
+    modifs: ["<code>Player.isProtectedFromAttacks()</code> : nouvelle methode qui parcourt inPlay."],
+    code: `public class Lighthouse extends Card {
+
+    public boolean durationEffect;
+
+    public Lighthouse() {
+        super("Lighthouse", 2, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementAction(1);
+        p.incrementMoney(1);
+        durationEffect = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.incrementMoney(1);
+        durationEffect = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffect;
+    }
+}`
+  },
+  Lookout: {
+    category: "seaside", cost: 3, types: ["ACTION"],
+    description: "+1 Action. Regardez les 3 premieres cartes : ecartez-en une, defaussez-en une, replacez la derniere sur la pioche.",
+    logique: "Pioche 3 cartes en main, puis demande 3 choix successifs (trash, discard, draw).",
+    modifs: ["Aucune (utilise <code>chooseCardFromButtons</code>)."],
+    code: `public class Lookout extends Card {
+
+    public Lookout() {
+        super("Lookout", 3, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementAction(1);
+        List<Card> lookedAt = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Card c = p.drawToHand();
+            if (c != null) {
+                lookedAt.add(c);
+            }
+        }
+
+        if (!lookedAt.isEmpty()) {
+            Card toTrash = p.chooseCardFromButtons("Ecarter (Trash)", lookedAt, false);
+            if (toTrash != null) {
+                p.moveToTrash(toTrash);
+                lookedAt.remove(toTrash);
+            }
+
+            if (!lookedAt.isEmpty()) {
+                Card toDiscard = p.chooseCardFromButtons("Defausser", lookedAt, false);
+                if (toDiscard != null) {
+                    p.moveToDiscard(toDiscard);
+                    lookedAt.remove(toDiscard);
+                }
+            }
+
+            if (!lookedAt.isEmpty()) {
+                p.moveToDraw(lookedAt.get(0));
+            }
+        }
+    }
+}`
+  },
+  "Merchant Ship": {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION"],
+    description: "Maintenant et au debut du prochain tour : +2 Pieces.",
+    logique: "Pattern Duration. Pas de cartes ni d'actions, juste de l'argent.",
+    modifs: ["Aucune."],
+    code: `public class MerchantShip extends Card {
+    public MerchantShip() {
+        super("Merchant Ship", 5, CardType.ACTION, CardType.DURATION);
+    }
+    public boolean durationEffect;
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+        durationEffect = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.incrementMoney(2);
+        durationEffect = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffect;
+    }
+}`
+  },
+  Monkey: {
+    category: "seaside", cost: 3, types: ["ACTION", "DURATION"],
+    description: "Jusqu'au prochain tour : chaque fois que le joueur a votre droite gagne une carte, +1 Carte. Au debut du prochain tour : +1 Carte.",
+    logique: "Hook <code>onOtherPlayerGain</code> appele depuis <code>Player.gainTo</code>. Calcule l'index du voisin de droite.",
+    modifs: [
+      "<code>Player.gainTo()</code> : appelle <code>monkey.onOtherPlayerGain()</code> sur tous les Monkey en jeu chez les autres joueurs."
+    ],
+    code: `public class Monkey extends Card {
+
+    private boolean durationActive;
+
+    public Monkey() {
+        super("Monkey", 3, CardType.ACTION, CardType.DURATION);
+        durationActive = false;
+    }
+
+    @Override
+    public void play(Player p) {
+        durationActive = true;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (!durationActive) return;
+        durationActive = false;
+        p.drawToHand();
+    }
+
+    public void onOtherPlayerGain(Player owner, Player gainingPlayer) {
+        if (!durationActive) return;
+
+        int ownerIndex = owner.getIndex();
+        int nbPlayers = owner.getGame().getNbPlayers();
+        int rightPlayerIndex = (ownerIndex - 1 + nbPlayers) % nbPlayers;
+
+        if (gainingPlayer.getIndex() == rightPlayerIndex) {
+            owner.drawToHand();
+        }
+    }
+}`
+  },
+  "Native Village": {
+    category: "seaside", cost: 2, types: ["ACTION"],
+    description: "+2 Actions. Choisissez : ajoutez la carte du dessus de votre pioche au plateau Village Indigene, OU prenez toutes les cartes du plateau en main.",
+    logique: "Choix entre 'add' et 'take' via les boutons.",
+    modifs: [
+      "<code>Player.nativeVillageMat</code> : nouvelle liste.",
+      "<code>Player.moveToNativeVillageMat(Card)</code>, <code>takeAllFromNativeVillageMat()</code>, <code>getCardsOnNativeVillageMat()</code>."
+    ],
+    code: `public class NativeVillage extends Card {
+
+    public NativeVillage() {
+        super("Native Village", 2, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementAction(2);
+        List<Button> buttons = List.of(
+            new Button("Ajouter", "add"),
+            new Button("Prendre", "take"));
+        String choice = p.chooseStringFromButtons("Native Village", buttons, false);
+
+        if ("add".equals(choice)) {
+            Card top = p.getCardFromDeck();
+            if (top != null) {
+                p.moveToNativeVillageMat(top);
+            }
+        } else if ("take".equals(choice)) {
+            p.takeAllFromNativeVillageMat();
+        }
+    }
+}`
+  },
+  Navigator: {
+    category: "seaside", cost: 4, types: ["ACTION"],
+    description: "+2 Pieces. Regardez les 5 premieres cartes de la pioche. Defaussez-les toutes ou replacez-les dans l'ordre voulu.",
+    logique: "Pioche 5 cartes dans une liste temporaire, puis choix discard/replace.",
+    modifs: ["Aucune."],
+    code: `public class Navigator extends Card {
+
+    public Navigator() {
+        super("Navigator", 4, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementMoney(2);
+        List<Card> top5 = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Card c = p.getCardFromDeck();
+            if (c != null) {
+                c.moveTo(top5);
+            }
+        }
+
+        String choice = p.chooseStringFromButtons("Defausser ou remettre ?",
+                List.of(new Button("Defausser", "y"),
+                        new Button("Remettre", "n")), false);
+
+        if ("y".equals(choice)) {
+            for (Card c : new ArrayList<>(top5)) {
+                p.moveToDiscard(c);
+            }
+        } else {
+            while (!top5.isEmpty()) {
+                Card c = p.chooseCardFromButtons("Ordre de remise", top5, false);
+                p.moveToDraw(c);
+            }
+        }
+    }
+}`
+  },
+  Outpost: {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION"],
+    description: "Vous jouez un tour supplementaire apres celui-ci. Vous ne piochez que 3 cartes au lieu de 5. Effet non-cumulable.",
+    logique: "Active <code>hasOutpostEffect</code> sur le joueur. Le mecanisme du tour bonus est dans <code>Game</code>.",
+    modifs: [
+      "<code>Player.hasOutpostEffect</code>, <code>isOutpostTurn</code> : nouveaux flags.",
+      "<code>Player.cleanup()</code> : pioche 3 cartes au lieu de 5 si <code>hasOutpostEffect</code>.",
+      "<code>Game</code> : gere le tour supplementaire en verifiant <code>getHasOutpostEffect()</code>."
+    ],
+    code: `public class Outpost extends Card {
+
+    private boolean durationActive;
+
+    public Outpost() {
+        super("Outpost", 5, CardType.ACTION, CardType.DURATION);
+    }
+
+    @Override
+    public void play(Player p) {
+        if (!p.isOutpostTurn()) {
+            p.setHasOutpostEffect(true);
+            durationActive = true;
+        }
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        durationActive = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+}`
+  },
+  "Pearl Diver": {
+    category: "seaside", cost: 2, types: ["ACTION"],
+    description: "+1 Carte, +1 Action. Regardez la carte du bas de la pioche. Vous pouvez la mettre sur le dessus.",
+    logique: "Utilise les nouvelles methodes de Player.",
+    modifs: [
+      "<code>Player.getBottomCardFromDeck()</code>, <code>moveBottomCardToDeckTop()</code> ajoutees."
+    ],
+    code: `public class PearlDiver extends Card {
+
+    public PearlDiver() {
+        super("Pearl Diver", 2, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementAction(1);
+        Card bottom = p.getBottomCardFromDeck();
+        if (bottom != null) {
+            String choice = p.chooseStringFromButtons(
+                "Mettre " + bottom.getName() + " sur le dessus ?",
+                List.of(new Button("Oui", "y"), new Button("Non", "n")), false);
+            if ("y".equals(choice)) {
+                p.moveBottomCardToDeckTop();
+            }
+        }
+    }
+}`
+  },
+  Pirate: {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION", "REACTION"],
+    description: "Au debut de votre prochain tour, gagnez un Tresor de cout <= 6 en main. Reaction : quand un autre joueur gagne un Tresor, vous pouvez jouer le Pirate depuis votre main.",
+    logique: "Le hook reaction est dans <code>Player.gainTo</code> : quand un Tresor est gagne, on propose a chaque joueur ayant un Pirate en main de le jouer.",
+    modifs: [
+      "<code>Player.gainTo()</code> : si Tresor gagne, propose a tous les joueurs de jouer leur Pirate."
+    ],
+    code: `public class Pirate extends Card {
+
+    private boolean durationActive;
+
+    public Pirate() {
+        super("Pirate", 5, CardType.ACTION, CardType.DURATION, CardType.REACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        durationActive = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        Card treasure = p.chooseCardFromSupply(
+                "Choisissez un Tresor coutant jusqu'a 6",
+                c -> c.hasType(CardType.TREASURE) && c.getCost() <= 6, false);
+
+        if (treasure != null) {
+            p.gainToHand(treasure);
+        }
+
+        durationActive = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+}`
+  },
+  "Pirate Ship": {
+    category: "seaside", cost: 4, types: ["ACTION", "ATTACK"],
+    description: "Choix : +1 Piece par jeton ; OU les adversaires revelent 2 cartes, vous ecartez 1 Tresor revele, et si au moins un Tresor a ete ecarte, gagnez 1 jeton.",
+    logique: "Compteur statique de jetons. 2 modes selon choix du joueur.",
+    modifs: ["Utilise <code>game.getOtherPlayers()</code>."],
+    code: `public class PirateShip extends Card {
+    public PirateShip() {
+        super("Pirate Ship", 4, CardType.ACTION, CardType.ATTACK);
+    }
+    private static int nbTokens = 0;
+
+    @Override
+    public void play(Player p) {
+        List<Button> choices = new ArrayList<>();
+        choices.add(new Button("+1$ par jeton", "coins"));
+        choices.add(new Button("Attaquer", "attack"));
+
+        String choice = p.chooseStringFromButtons(
+            "Bateau Pirate : choisissez une option", choices, false);
+
+        if ("coins".equals(choice)) {
+            p.incrementMoney(nbTokens);
+        } else {
+            boolean atLeastOneTrashed = false;
+
+            for (Player target : p.getGame().getOtherPlayers(p)) {
+                if (!target.isProtectedFromAttacks()) {
+                    List<Card> revealed = new ArrayList<>();
+                    for (int i = 0; i < 2; i++) {
+                        Card c = target.drawToHand();
+                        if (c != null) revealed.add(c);
+                    }
+
+                    List<Card> treasures = new ArrayList<>();
+                    for (Card c : revealed) {
+                        if (c.hasType(CardType.TREASURE)) {
+                            treasures.add(c);
+                        }
+                    }
+
+                    if (!treasures.isEmpty()) {
+                        Card toTrash = p.chooseCardFromButtons(
+                            "Ecarter un tresor de " + target.getName(),
+                            treasures, false);
+                        if (toTrash != null) {
+                            target.getCardsInHand().remove(toTrash);
+                            target.moveToTrash(toTrash);
+                            revealed.remove(toTrash);
+                            atLeastOneTrashed = true;
+                        }
+                    }
+
+                    for (Card c : revealed) {
+                        target.getCardsInHand().remove(c);
+                        target.moveToDiscard(c);
+                    }
+                }
+            }
+
+            if (atLeastOneTrashed) {
+                nbTokens++;
+            }
+        }
+    }
+}`
+  },
+  Sailor: {
+    category: "seaside", cost: 4, types: ["ACTION", "DURATION"],
+    description: "+1 Action. 1 fois ce tour, quand vous gagnez une Duration, vous pouvez la jouer. Au prochain tour, +2 Pieces et ecartez optionnellement 1 carte.",
+    logique: "<code>canPlayGainedDuration</code> est l'usage unique. Le hook <code>onOwnerGainsDuration</code> est appele depuis <code>gainTo</code>.",
+    modifs: [
+      "<code>Player.gainTo()</code> : si la carte gagnee est de type DURATION, parcourt les Sailor en jeu et appelle <code>onOwnerGainsDuration</code>."
+    ],
+    code: `public class Sailor extends Card {
+
+    private boolean durationEffectPending;
+    private boolean canPlayGainedDuration;
+
+    public Sailor() {
+        super("Sailor", 4, CardType.ACTION, CardType.DURATION);
+        durationEffectPending = false;
+        canPlayGainedDuration = false;
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementAction(1);
+        durationEffectPending = true;
+        canPlayGainedDuration = true;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffectPending;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (!durationEffectPending) return;
+        durationEffectPending = false;
+        canPlayGainedDuration = false;
+
+        p.incrementMoney(2);
+
+        Card toTrash = p.chooseCardFromHand("Ecartez une carte (Sailor)", true);
+        if (toTrash != null) {
+            p.moveToTrash(toTrash);
+        }
+    }
+
+    public void onOwnerGainsDuration(Player owner, Card gained) {
+        if (!canPlayGainedDuration) return;
+
+        String choice = owner.chooseStringFromButtons(
+                "Jouer " + gained.getName() + " (Sailor) ?",
+                List.of(new Button("Oui", "y"), new Button("Non", "n")), false);
+
+        if ("y".equals(choice)) {
+            canPlayGainedDuration = false;
+            owner.playCard(gained);
+        }
+    }
+}`
+  },
+  Salvager: {
+    category: "seaside", cost: 4, types: ["ACTION"],
+    description: "+1 Achat. Ecartez une carte de votre main. +1 Piece par Piece de son cout.",
+    logique: "Demande une carte a ecarter, ajoute son cout en argent, l'envoie au trash.",
+    modifs: ["Aucune."],
+    code: `public class Salvager extends Card {
+    public Salvager() {
+        super("Salvager", 4, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.incrementBuy(1);
+
+        Card cardToTrash = p.chooseCardFromHand(
+            "Salvager : ecartez une carte", false);
+
+        if (cardToTrash != null) {
+            p.incrementMoney(cardToTrash.getCost());
+            p.moveToTrash(cardToTrash);
+        }
+    }
+}`
+  },
+  "Sea Chart": {
+    category: "seaside", cost: 3, types: ["ACTION"],
+    description: "+1 Carte, +1 Action. Revelez la carte du dessus de votre pioche. Si vous en avez un exemplaire en jeu, prenez-la en main.",
+    logique: "Pioche, regarde le top, verifie inPlay par nom, reprend ou replace.",
+    modifs: ["Aucune."],
+    code: `public class SeaChart extends Card {
+
+    public SeaChart() {
+        super("Sea Chart", 3, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementAction(1);
+        Card top = p.getCardFromDeck();
+        if (top != null) {
+            boolean sameInPlay = p.getCardsInPlay().stream()
+                    .anyMatch(c -> c.getName().equals(top.getName()));
+            if (sameInPlay) {
+                p.moveToHand(top);
+            } else {
+                p.moveToDraw(top);
+            }
+        }
+    }
+}`
+  },
+  "Sea Hag": {
+    category: "seaside", cost: 4, types: ["ACTION", "ATTACK"],
+    description: "Tous les adversaires defaussent la carte du haut de leur pioche, puis recoivent une Malediction sur leur pioche.",
+    logique: "Boucle sur les adversaires.",
+    modifs: ["Aucune (mais devrait verifier <code>isProtectedFromAttacks</code> en pratique)."],
+    code: `public class SeaHag extends Card {
+
+    public SeaHag() {
+        super("Sea Hag", 4, CardType.ACTION, CardType.ATTACK);
+    }
+
+    @Override
+    public void play(Player p) {
+        for (Player opp : p.getGame().getPlayers()) {
+            if (opp != p) {
+                Card top = opp.getCardFromDeck();
+                if (top != null) {
+                    opp.moveToDiscard(top);
+                }
+
+                Card curse = p.getGame().getCardFromSupply("Curse");
+                if (curse != null) {
+                    opp.moveToDraw(curse);
+                }
+            }
+        }
+    }
+}`
+  },
+  "Sea Witch": {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION", "ATTACK"],
+    description: "+2 Cartes. Tous les adversaires recoivent une Malediction. Au prochain tour : +2 Cartes, puis defaussez 2 cartes.",
+    logique: "Pattern Duration avec attaque immediate.",
+    modifs: ["Aucune."],
+    code: `public class SeaWitch extends Card {
+
+    private boolean durationEffectPending;
+
+    public SeaWitch() {
+        super("Sea Witch", 5, CardType.ACTION, CardType.DURATION, CardType.ATTACK);
+        durationEffectPending = false;
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.drawToHand();
+
+        for (int i = 0; i < p.getGame().getNbPlayers(); i++) {
+            Player opp = p.getGame().getPlayer(i);
+            if (opp != p) {
+                Card curse = p.getGame().getCardFromSupply("Curse");
+                if (curse != null) {
+                    opp.moveToDiscard(curse);
+                }
+            }
+        }
+
+        durationEffectPending = true;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffectPending;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (!durationEffectPending) return;
+        durationEffectPending = false;
+
+        p.drawToHand();
+        p.drawToHand();
+
+        for (int i = 0; i < 2; i++) {
+            Card c = p.chooseCardFromHand("Defaussez une carte (Sea Witch)", false);
+            if (c != null) {
+                p.moveToDiscard(c);
+            }
+        }
+    }
+}`
+  },
+  Smugglers: {
+    category: "seaside", cost: 3, types: ["ACTION"],
+    description: "Recevez une copie d'une carte de cout <= 6 que le joueur a votre droite a recue a son dernier tour.",
+    logique: "Recupere <code>cardsGainedLastTurn</code> du voisin de droite, filtre la reserve.",
+    modifs: [
+      "<code>Player.cardsGainedThisTurn</code>, <code>cardsGainedLastTurn</code> : nouveaux historiques.",
+      "<code>Player.gainTo()</code> : ajoute le nom de la carte a <code>cardsGainedThisTurn</code>.",
+      "<code>Player.cleanup()</code> : copie <code>cardsGainedThisTurn</code> dans <code>cardsGainedLastTurn</code> et vide.",
+      "<code>Player.gainToDiscard(Card)</code>, <code>getCardsGainedLastTurn()</code>."
+    ],
+    code: `public class Smugglers extends Card {
+
+    public Smugglers() {
+        super("Smugglers", 3, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        List<Player> players = p.getGame().getPlayers();
+        int myIndex = players.indexOf(p);
+
+        int rightPlayerIndex = myIndex - 1;
+        if (rightPlayerIndex < 0) {
+            rightPlayerIndex = players.size() - 1;
+        }
+        Player rightPlayer = players.get(rightPlayerIndex);
+
+        List<String> validCardNames = rightPlayer.getCardsGainedLastTurn();
+
+        Card chosen = p.chooseCardFromSupply(
+                "Choisissez une carte coutant jusqu'a 6 acquise par le joueur a votre droite",
+                c -> c.getCost() <= 6 && validCardNames.contains(c.getName()),
+                false);
+
+        if (chosen != null) {
+            p.gainToDiscard(chosen);
+        }
+    }
+}`
+  },
+  Tactician: {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION"],
+    description: "Si vous avez au moins 1 carte en main, defaussez votre main, et au prochain tour : +5 Cartes, +1 Action, +1 Achat.",
+    logique: "Si main vide, l'effet ne s'active pas. Sinon defausse tout, active l'effet.",
+    modifs: ["Aucune."],
+    code: `public class Tactician extends Card {
+
+    public Tactician() {
+        super("Tactician", 5, CardType.ACTION, CardType.DURATION);
+    }
+
+    private boolean effectActive = false;
+
+    @Override
+    public void play(Player p) {
+        if (!p.getCardsInHand().isEmpty()) {
+            List<Card> handCopy = new ArrayList<>(p.getCardsInHand());
+            for (Card c : handCopy) {
+                p.moveToDiscard(c);
+            }
+            effectActive = true;
+        } else {
+            effectActive = false;
+        }
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        if (effectActive) {
+            for (int i = 0; i < 5; i++) {
+                p.drawToHand();
+            }
+            p.incrementAction(1);
+            p.incrementBuy(1);
+            effectActive = false;
+        }
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return effectActive;
+    }
+}`
+  },
+  "Tide Pools": {
+    category: "seaside", cost: 4, types: ["ACTION", "DURATION"],
+    description: "+3 Cartes, +1 Action. Au prochain tour, defaussez 2 cartes.",
+    logique: "Pattern Duration. Effet negatif au prochain tour.",
+    modifs: ["Aucune."],
+    code: `public class TidePools extends Card {
+    private boolean durationActive;
+    public TidePools() {
+        super("Tide Pools", 4, CardType.ACTION, CardType.DURATION);
+    }
+    @Override
+    public void play(Player p) {
+        for (int i = 0; i < 3; i++) {
+            p.drawToHand();
+        }
+        p.incrementAction(1);
+        this.durationActive = true;
+    }
+
+    @Override
+    public void atStartOfTurn(Player p) {
+        for (int i = 0; i < 2; i++) {
+            List<Card> currentHand = p.getCardsInHand();
+            if (!currentHand.isEmpty()) {
+                Card toDiscard = p.chooseCardFromHand(
+                    "Defausser pour Tide Pools", false);
+                if (toDiscard != null) {
+                    p.moveToDiscard(toDiscard);
+                }
+            }
+        }
+        this.durationActive = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationActive;
+    }
+}`
+  },
+  "Treasure Map": {
+    category: "seaside", cost: 4, types: ["ACTION"],
+    description: "Ecartez ceci et une autre Treasure Map de votre main. Si 2 ont ete ecartees, gagnez 4 Or sur votre pioche.",
+    logique: "Auto-ecartement, cherche une 2eme Treasure Map dans la main.",
+    modifs: ["Aucune."],
+    code: `public class TreasureMap extends Card {
+
+    public TreasureMap() {
+        super("Treasure Map", 4, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        Card otherMap = p.getCardsInHand().stream()
+                .filter(c -> c.getName().equals("Treasure Map"))
+                .findFirst().orElse(null);
+
+        p.getCardsInPlay().remove(this);
+        p.moveToTrash(this);
+
+        if (otherMap != null) {
+            p.moveToTrash(otherMap);
+            for (int i = 0; i < 4; i++) {
+                Card gold = p.getGame().getCardFromSupply("Gold");
+                if (gold != null) {
+                    p.moveToDraw(gold);
+                }
+            }
+        }
+    }
+}`
+  },
+  Treasury: {
+    category: "seaside", cost: 5, types: ["ACTION"],
+    description: "+1 Carte, +1 Action, +1 Piece. A la fin de la phase Achat, si aucune carte Victoire n'a ete recue, vous pouvez la replacer sur la pioche.",
+    logique: "L'effet 'replacer sur la pioche' est dans <code>Player.cleanup()</code>.",
+    modifs: [
+      "<code>Player.gainedVictoryCardThisTurn</code> : flag mis a true dans <code>gainTo</code> si carte Victoire.",
+      "<code>Player.cleanup()</code> : si Treasury en jeu et pas de Victoire gagnee, propose le bouton 'Oui/Non' pour replacer sur la pioche."
+    ],
+    code: `public class Treasury extends Card {
+
+    public Treasury() {
+        super("Treasury", 5, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.incrementAction(1);
+        p.incrementMoney(1);
+    }
+}`
+  },
+  Warehouse: {
+    category: "seaside", cost: 3, types: ["ACTION"],
+    description: "+3 Cartes, +1 Action. Defaussez 3 cartes.",
+    logique: "Pioche 3, defausse 3 (boucle interactive).",
+    modifs: ["Aucune."],
+    code: `public class Warehouse extends Card {
+    public Warehouse() {
+        super("Warehouse", 3, CardType.ACTION);
+    }
+
+    @Override
+    public void play(Player p){
+        p.drawToHand();
+        p.drawToHand();
+        p.drawToHand();
+        p.incrementAction(1);
+        int n=3;
+        while(n>0 && !p.getCardsInDraw().isEmpty()){
+            Card card = p.chooseCardFromHand(
+                "Discard %d card(s).".formatted(n), c -> true, false);
+            p.moveToDiscard(card);
+            n -= 1;
+        }
+    }
+}`
+  },
+  Wharf: {
+    category: "seaside", cost: 5, types: ["ACTION", "DURATION"],
+    description: "Maintenant et au debut du prochain tour : +2 Cartes, +1 Achat.",
+    logique: "Duration classique, puissant : +4 cartes et +2 achats au total.",
+    modifs: ["Aucune."],
+    code: `public class Wharf extends Card {
+    public boolean durationEffect;
+    public Wharf() {
+        super("Wharf", 5, CardType.ACTION, CardType.DURATION);
+    }
+    @Override
+    public void play(Player p) {
+        p.drawToHand();
+        p.drawToHand();
+        p.incrementBuy(1);
+        durationEffect = true;
+    }
+    @Override
+    public void atStartOfTurn(Player p) {
+        p.drawToHand();
+        p.drawToHand();
+        p.incrementBuy(1);
+        durationEffect = false;
+    }
+
+    @Override
+    public boolean hasDurationEffect() {
+        return durationEffect;
+    }
+}`
+  }
+};
+
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightJava(code) {
+  let out = escapeHTML(code);
+  out = out.replace(/(\/\/[^\n]*)/g, '<span class="cmt">$1</span>');
+  out = out.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="cmt">$1</span>');
+  out = out.replace(/("(?:[^"\\]|\\.)*")/g, '<span class="str">$1</span>');
+  const kws = ['public','private','protected','class','extends','implements','return','if','else','for','while','new','this','super','static','final','void','int','boolean','true','false','null','break','continue','switch','case','import','package','throw','throws','try','catch','interface','enum','abstract'];
+  out = out.replace(new RegExp('\\b(' + kws.join('|') + ')\\b','g'),'<span class="kw">$1</span>');
+  out = out.replace(/(@Override)/g,'<span class="kw">$1</span>');
+  out = out.replace(/\b(\d+)\b/g, '<span class="num">$1</span>');
+  return out;
+}
+
+function renderTile(name, card) {
+  const safe = name.replace(/'/g, "\\'");
+  return '<div class="card-tile" onclick="openModal(\'' + safe + '\')">' +
+    '<div class="cost">' + card.cost + '</div>' +
+    '<div class="name">' + name + '</div>' +
+    '<div class="types">' + card.types.map(function(t){return '<span class="type-badge type-'+t+'">'+t+'</span>';}).join('') + '</div>' +
+    '</div>';
+}
+
+function renderGrids() {
+  var common = document.getElementById('grid-common');
+  var seaside = document.getElementById('grid-seaside');
+  var commonHTML = '', seasideHTML = '';
+  Object.keys(CARDS).sort().forEach(function(name){
+    var c = CARDS[name];
+    if (c.category === 'common') commonHTML += renderTile(name, c);
+    else seasideHTML += renderTile(name, c);
+  });
+  common.innerHTML = commonHTML;
+  seaside.innerHTML = seasideHTML;
+}
+
+function openModal(name) {
+  var card = CARDS[name];
+  if (!card) return;
+  document.getElementById('modalTitle').textContent = name + ' (cout : ' + card.cost + ')';
+  document.getElementById('modalDescription').innerHTML =
+    '<strong>Effet :</strong> ' + card.description;
+  document.getElementById('modalMeta').innerHTML =
+    '<p><strong>Types :</strong> ' +
+    card.types.map(function(t){return '<span class="type-badge type-'+t+'">'+t+'</span>';}).join(' ') +
+    '</p>';
+  document.getElementById('modalCode').innerHTML = highlightJava(card.code);
+  document.getElementById('modalModifs').innerHTML =
+    card.modifs && card.modifs.length
+      ? '<ul>' + card.modifs.map(function(m){return '<li>' + m + '</li>';}).join('') + '</ul>'
+      : '<p>Aucune modification dans d\'autres fichiers.</p>';
+  document.getElementById('modalLogique').innerHTML = '<p>' + card.logique + '</p>';
+
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelector('.tab[data-tab="code"]').classList.add('active');
+  document.getElementById('tab-code').classList.add('active');
+
+  document.getElementById('cardModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('cardModal').classList.remove('active');
+}
+
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('cardModal').addEventListener('click', function(e){
+  if (e.target.id === 'cardModal') closeModal();
+});
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeModal();
+});
+
+document.getElementById('searchSeaside').addEventListener('input', function(e){
+  var q = e.target.value.toLowerCase();
+  document.querySelectorAll('#grid-seaside .card-tile').forEach(function(tile){
+    var name = tile.querySelector('.name').textContent.toLowerCase();
+    tile.style.display = name.indexOf(q) !== -1 ? '' : 'none';
+  });
+});
+
+renderGrids();
+</script>
+
+</body>
+</html>

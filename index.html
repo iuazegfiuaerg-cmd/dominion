@@ -537,6 +537,12 @@ const CARDS = {
     description: "Malediction. Vaut -1 PV a la fin de la partie.",
     logique: "<code>getVictoryValue()</code> retourne -1.",
     modifs: ["<code>Player.incrementCurse(p)</code> : place une Malediction dans la defausse de p."],
+    modifsCode: [{file: "Player.java", note: "methode ajoutee", code: `public void incrementCurse(Player p) {
+    Card curse = game.getCardFromSupply("Curse");
+    if (curse != null) {
+        curse.moveTo(p.discard);
+    }
+}`}],
     code: `public class Curse extends Card {
     public Curse() {
         super("Curse", 0, CardType.CURSE);
@@ -593,6 +599,19 @@ const CARDS = {
     description: "+1 Achat, +1 Piece. Au debut de votre prochain tour : +1 Achat, +1 Piece.",
     logique: "Carte Tresor ET Duration. Le drapeau <code>durationActive</code> est mis a true au play, false a atStartOfTurn.",
     modifs: ["Utilise <code>atStartOfTurn</code> et <code>hasDurationEffect</code> de Card."],
+    modifsCode: [{file: "Card.java", note: "methodes ajoutees pour toutes les cartes Duration", code: `public boolean hasDurationEffect() {
+    return false;
+}
+
+public void atStartOfTurn(Player p) {
+}`}, {file: "Player.java cleanup()", note: "ne defausse pas les cartes Duration encore actives", code: `for (Card c : getCardsInPlay()) {
+    // ... gestion Treasury ...
+    if (!c.hasDurationEffect() && inPlay.contains(c)) {
+        c.moveTo(discard);
+    }
+}`}, {file: "Player.java playTurn()", note: "appelle atStartOfTurn au debut du tour", code: `for (Card c : getCardsInPlay()) {
+    c.atStartOfTurn(this);
+}`}],
     code: `public class Astrolabe extends Card {
 
     private boolean durationActive;
@@ -647,6 +666,20 @@ const CARDS = {
       "<code>Player.gainTo()</code> appelle <code>blockade.onOtherPlayerGain()</code> sur tous les Blockade en jeu chez les adversaires.",
       "<code>Player.moveToSetAside(Card)</code> a ete ajoutee pour permettre l'operation."
     ],
+    modifsCode: [{file: "Player.java gainTo()", note: "hook ajoute", code: `for (int i = 0; i < game.getNbPlayers(); i++) {
+    Player other = game.getPlayer(i);
+    if (other == this) continue;
+    for (Card c : other.getCardsInPlay()) {
+        if (c instanceof Blockade blockade) {
+            blockade.onOtherPlayerGain(other, this, gainedCard);
+        }
+        if (c instanceof Monkey monkey) {
+            monkey.onOtherPlayerGain(other, this);
+        }
+    }
+}`}, {file: "Player.java", note: "methode ajoutee", code: `public void moveToSetAside(Card c) {
+    c.moveTo(cardsSetAside);
+}`}],
     code: `public class Blockade extends Card {
 
     private Card setAsideCard;
@@ -729,6 +762,22 @@ const CARDS = {
       "<code>Player.playCard(Card)</code> a ete modifiee : quand un Tresor est joue, on parcourt les Corsair en jeu chez les autres joueurs et on appelle <code>onOtherPlayerPlaysTreasure</code>.",
       "Import explicite de <code>Corsair</code> dans Player.java."
     ],
+    modifsCode: [{file: "Player.java playCard()", note: "hook ajoute", code: `public void playCard(Card c) {
+    log(toLog() + " plays " + c.toLog());
+    c.moveTo(inPlay);
+
+    if (c.hasType(CardType.TREASURE)) {
+        for (Player other : game.getPlayers()) {
+            if (other == this) continue;
+            for (Card oc : other.getCardsInPlay()) {
+                if (oc instanceof Corsair corsair) {
+                    corsair.onOtherPlayerPlaysTreasure(other, this, c);
+                }
+            }
+        }
+    }
+    c.play(this);
+}`}],
     code: `public class Corsair extends Card {
 
     private boolean duration;
@@ -779,6 +828,14 @@ const CARDS = {
     description: "+2 Pieces. Tous les adversaires defaussent un Cuivre (ou revelent une main sans Cuivre).",
     logique: "Boucle sur les adversaires non proteges. Cherche un Copper en main, le defausse.",
     modifs: ["Verification de <code>isProtectedFromAttacks()</code> ajoutee a Player."],
+    modifsCode: [{file: "Player.java", note: "methode ajoutee (commune a toutes les Attaques)", code: `public boolean isProtectedFromAttacks() {
+    for (Card c : inPlay) {
+        if (c.hasName("Lighthouse")) {
+            return true;
+        }
+    }
+    return false;
+}`}],
     code: `public class Cutpurse extends Card {
 
     public Cutpurse() {
@@ -821,6 +878,20 @@ const CARDS = {
       "<code>SupplyPile</code> : ajout de l'attribut <code>nbEmbargoTokens</code> et des methodes <code>addEmbargoToken()</code> et <code>getNbEmbargoTokens()</code>.",
       "<code>Player.gainTo()</code> : pour chaque jeton sur la pile gagnee, le joueur recoit une Malediction."
     ],
+    modifsCode: [{file: "SupplyPile.java", note: "attribut + methodes ajoutees", code: `private int nbEmbargoTokens = 0;
+
+public int getNbEmbargoTokens() {
+    return nbEmbargoTokens;
+}
+
+public void addEmbargoToken() {
+    this.nbEmbargoTokens++;
+}`}, {file: "Player.java gainTo()", note: "declenchement des Maledictions Embargo", code: `SupplyPile pile = game.getSupplyPile(gainedCard.getName());
+if (pile != null) {
+    for (int j = 0; j < pile.getNbEmbargoTokens(); j++) {
+        incrementCurse(this);
+    }
+}`}],
     code: `public class Embargo extends Card {
 
     public Embargo() {
@@ -848,6 +919,12 @@ const CARDS = {
     description: "Vous pouvez reveler une Province. Si oui, gagnez un Or en main, sinon un Argent en main.",
     logique: "Choix optionnel d'une Province. Ajout d'un Gold ou d'un Silver via <code>gainCardToHand</code>.",
     modifs: ["Player.gainCardToHand(String) : recupere la carte dans la reserve et l'ajoute a la main."],
+    modifsCode: [{file: "Player.java", note: "methode ajoutee", code: `public void gainCardToHand(String cardName) {
+    Card c = getCardFromSupply(cardName);
+    if (c != null) {
+        gainTo(c, hand);
+    }
+}`}],
     code: `public class Explorer extends Card {
 
     public Explorer() {
@@ -940,6 +1017,15 @@ const CARDS = {
     description: "+1 Carte, +1 Action. Mettez une carte de cote. Au prochain tour, prenez-la en main.",
     logique: "Stocke la <code>setAsideCard</code>, la deplace via <code>moveToSetAside</code>, la rend en main au prochain tour.",
     modifs: ["<code>Player.moveToSetAside(Card)</code> ajoutee."],
+    modifsCode: [{file: "Player.java", note: "attribut + methode ajoutes", code: `private final List<Card> cardsSetAside;
+
+public List<Card> getCardsSetAside() {
+    return new ArrayList<>(cardsSetAside);
+}
+
+public void moveToSetAside(Card c) {
+    c.moveTo(cardsSetAside);
+}`}],
     code: `public class Haven extends Card {
 
     private Card setAsideCard;
@@ -982,6 +1068,15 @@ const CARDS = {
       "<code>Player.islandMat</code> : nouvelle liste.",
       "<code>Player.addIslandCard(Card)</code>, <code>Player.getCardsOnIslandMat()</code>."
     ],
+    modifsCode: [{file: "Player.java", note: "attribut + methodes ajoutes", code: `private final List<Card> islandMat;
+
+public List<Card> getCardsOnIslandMat() {
+    return new ArrayList<>(islandMat);
+}
+
+public void addIslandCard(Card c) {
+    c.moveTo(islandMat);
+}`}],
     code: `public class Island extends Card {
 
     public Island() {
@@ -1009,6 +1104,14 @@ const CARDS = {
     description: "+1 Action. Maintenant et au prochain tour : +1 Piece. Vous protege des Attaques tant qu'elle est en jeu.",
     logique: "Sa simple presence dans <code>inPlay</code> avec le nom 'Lighthouse' suffit a <code>isProtectedFromAttacks()</code>.",
     modifs: ["<code>Player.isProtectedFromAttacks()</code> : nouvelle methode qui parcourt inPlay."],
+    modifsCode: [{file: "Player.java", note: "methode ajoutee", code: `public boolean isProtectedFromAttacks() {
+    for (Card c : inPlay) {
+        if (c.hasName("Lighthouse")) {
+            return true;
+        }
+    }
+    return false;
+}`}],
     code: `public class Lighthouse extends Card {
 
     public boolean durationEffect;
@@ -1116,6 +1219,18 @@ const CARDS = {
     modifs: [
       "<code>Player.gainTo()</code> : appelle <code>monkey.onOtherPlayerGain()</code> sur tous les Monkey en jeu chez les autres joueurs."
     ],
+    modifsCode: [{file: "Player.java gainTo()", note: "hook ajoute (partage avec Blockade)", code: `for (int i = 0; i < game.getNbPlayers(); i++) {
+    Player other = game.getPlayer(i);
+    if (other == this) continue;
+    for (Card c : other.getCardsInPlay()) {
+        if (c instanceof Blockade blockade) {
+            blockade.onOtherPlayerGain(other, this, gainedCard);
+        }
+        if (c instanceof Monkey monkey) {
+            monkey.onOtherPlayerGain(other, this);
+        }
+    }
+}`}],
     code: `public class Monkey extends Card {
 
     private boolean durationActive;
@@ -1163,6 +1278,21 @@ const CARDS = {
       "<code>Player.nativeVillageMat</code> : nouvelle liste.",
       "<code>Player.moveToNativeVillageMat(Card)</code>, <code>takeAllFromNativeVillageMat()</code>, <code>getCardsOnNativeVillageMat()</code>."
     ],
+    modifsCode: [{file: "Player.java", note: "attribut + methodes ajoutes", code: `private final List<Card> nativeVillageMat;
+
+public List<Card> getCardsOnNativeVillageMat() {
+    return new ArrayList<>(nativeVillageMat);
+}
+
+public void moveToNativeVillageMat(Card c) {
+    c.moveTo(this.nativeVillageMat);
+}
+
+public void takeAllFromNativeVillageMat() {
+    while (!this.nativeVillageMat.isEmpty()) {
+        this.nativeVillageMat.get(0).moveTo(this.hand);
+    }
+}`}],
     code: `public class NativeVillage extends Card {
 
     public NativeVillage() {
@@ -1236,6 +1366,19 @@ const CARDS = {
       "<code>Player.cleanup()</code> : pioche 3 cartes au lieu de 5 si <code>hasOutpostEffect</code>.",
       "<code>Game</code> : gere le tour supplementaire en verifiant <code>getHasOutpostEffect()</code>."
     ],
+    modifsCode: [{file: "Player.java", note: "attributs + accesseurs", code: `private boolean hasOutpostEffect = false;
+private boolean isOutpostTurn = false;
+
+public boolean isOutpostTurn() { return isOutpostTurn; }
+public void setHasOutpostEffect(boolean value) { this.hasOutpostEffect = value; }
+public boolean getHasOutpostEffect() { return hasOutpostEffect; }
+public void setOutpostTurn(boolean value) { this.isOutpostTurn = value; }`}, {file: "Player.java cleanup()", note: "pioche 3 cartes si Outpost actif", code: `int cardsToDraw = hasOutpostEffect ? 3 : 5;
+for (int i = 0; i < cardsToDraw; i++) {
+    Card c = getCardFromDeck();
+    if (c != null) {
+        c.moveTo(hand);
+    }
+}`}],
     code: `public class Outpost extends Card {
 
     private boolean durationActive;
@@ -1270,6 +1413,19 @@ const CARDS = {
     modifs: [
       "<code>Player.getBottomCardFromDeck()</code>, <code>moveBottomCardToDeckTop()</code> ajoutees."
     ],
+    modifsCode: [{file: "Player.java", note: "methodes ajoutees", code: `public Card getBottomCardFromDeck() {
+    if (draw.isEmpty()) {
+        return null;
+    }
+    return draw.get(0);
+}
+
+public void moveBottomCardToDeckTop() {
+    if (draw.size() > 1) {
+        Card bottomCard = draw.remove(0);
+        draw.add(bottomCard);
+    }
+}`}],
     code: `public class PearlDiver extends Card {
 
     public PearlDiver() {
@@ -1299,6 +1455,31 @@ const CARDS = {
     modifs: [
       "<code>Player.gainTo()</code> : si Tresor gagne, propose a tous les joueurs de jouer leur Pirate."
     ],
+    modifsCode: [{file: "Player.java gainTo()", note: "hook reaction Pirate", code: `if (gainedCard.hasType(CardType.TREASURE)) {
+    for (int i = 0; i < game.getNbPlayers(); i++) {
+        Player p = game.getPlayer(i);
+        while (true) {
+            Card pirate = p.getCardsInHand().stream()
+                    .filter(c -> c.getName().equals("Pirate"))
+                    .findFirst()
+                    .orElse(null);
+            if (pirate == null) break;
+
+            List<String> choices = new ArrayList<>();
+            choices.add("HAND:Pirate");
+            String choice = p.choose("Jouer le Pirate ?", choices, new ArrayList<>(), true);
+            if ("HAND:Pirate".equals(choice)) {
+                p.playCard(pirate);
+            } else {
+                break;
+            }
+        }
+    }
+}`}, {file: "Player.java", note: "methode ajoutee", code: `public void gainToHand(Card c) {
+    if (c != null) {
+        gainTo(c, this.hand);
+    }
+}`}],
     code: `public class Pirate extends Card {
 
     private boolean durationActive;
@@ -1404,6 +1585,13 @@ const CARDS = {
     modifs: [
       "<code>Player.gainTo()</code> : si la carte gagnee est de type DURATION, parcourt les Sailor en jeu et appelle <code>onOwnerGainsDuration</code>."
     ],
+    modifsCode: [{file: "Player.java gainTo()", note: "hook ajoute", code: `if (gainedCard.hasType(CardType.DURATION)) {
+    for (Card c : getCardsInPlay()) {
+        if (c instanceof Sailor sailor) {
+            sailor.onOwnerGainsDuration(this, gainedCard);
+        }
+    }
+}`}],
     code: `public class Sailor extends Card {
 
     private boolean durationEffectPending;
@@ -1600,6 +1788,19 @@ const CARDS = {
       "<code>Player.cleanup()</code> : copie <code>cardsGainedThisTurn</code> dans <code>cardsGainedLastTurn</code> et vide.",
       "<code>Player.gainToDiscard(Card)</code>, <code>getCardsGainedLastTurn()</code>."
     ],
+    modifsCode: [{file: "Player.java", note: "attributs + accesseur", code: `private List<String> cardsGainedThisTurn = new ArrayList<>();
+private List<String> cardsGainedLastTurn = new ArrayList<>();
+
+public List<String> getCardsGainedLastTurn() {
+    return cardsGainedLastTurn;
+}
+
+public void gainToDiscard(Card c) {
+    if (c != null) {
+        gainTo(c, this.discard);
+    }
+}`}, {file: "Player.java gainTo()", note: "memorise les cartes gagnees", code: `cardsGainedThisTurn.add(gainedCard.getName());`}, {file: "Player.java cleanup()", note: "rotation des historiques", code: `cardsGainedLastTurn = new ArrayList<>(cardsGainedThisTurn);
+cardsGainedThisTurn.clear();`}],
     code: `public class Smugglers extends Card {
 
     public Smugglers() {
@@ -1754,6 +1955,23 @@ const CARDS = {
       "<code>Player.gainedVictoryCardThisTurn</code> : flag mis a true dans <code>gainTo</code> si carte Victoire.",
       "<code>Player.cleanup()</code> : si Treasury en jeu et pas de Victoire gagnee, propose le bouton 'Oui/Non' pour replacer sur la pioche."
     ],
+    modifsCode: [{file: "Player.java", note: "attribut ajoute", code: `private boolean gainedVictoryCardThisTurn = false;`}, {file: "Player.java gainTo()", note: "detection carte Victoire", code: `if (gainedCard.hasType(CardType.VICTORY)) {
+    gainedVictoryCardThisTurn = true;
+}`}, {file: "Player.java cleanup()", note: "logique Treasury + reset du flag", code: `for (Card c : getCardsInPlay()) {
+    if (c.getName().equals("Treasury") && !gainedVictoryCardThisTurn) {
+        String choice = chooseStringFromButtons(
+            "Remettre Treasury sur la pioche ?",
+            List.of(new Button("Oui", "y"), new Button("Non", "n")), false);
+        if ("y".equals(choice)) {
+            c.moveTo(draw);
+            continue;
+        }
+    }
+    if (!c.hasDurationEffect() && inPlay.contains(c)) {
+        c.moveTo(discard);
+    }
+}
+gainedVictoryCardThisTurn = false;`}],
     code: `public class Treasury extends Card {
 
     public Treasury() {
@@ -1876,10 +2094,21 @@ function openModal(name) {
     card.types.map(function(t){return '<span class="type-badge type-'+t+'">'+t+'</span>';}).join(' ') +
     '</p>';
   document.getElementById('modalCode').innerHTML = highlightJava(card.code);
-  document.getElementById('modalModifs').innerHTML =
-    card.modifs && card.modifs.length
+  var modifsHTML = card.modifs && card.modifs.length
       ? '<ul>' + card.modifs.map(function(m){return '<li>' + m + '</li>';}).join('') + '</ul>'
       : '<p>Aucune modification dans d\'autres fichiers.</p>';
+  if (card.modifsCode) {
+    modifsHTML += '<h4 style="color:#90be6d;margin-top:18px">Code ajoute / modifie :</h4>';
+    if (typeof card.modifsCode === 'string') {
+      modifsHTML += '<pre class="code">' + highlightJava(card.modifsCode) + '</pre>';
+    } else {
+      card.modifsCode.forEach(function(block){
+        modifsHTML += '<p style="margin:10px 0 4px;color:#f9c74f"><strong>' + block.file + '</strong>' + (block.note ? ' - ' + block.note : '') + '</p>';
+        modifsHTML += '<pre class="code">' + highlightJava(block.code) + '</pre>';
+      });
+    }
+  }
+  document.getElementById('modalModifs').innerHTML = modifsHTML;
   document.getElementById('modalLogique').innerHTML = '<p>' + card.logique + '</p>';
 
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
